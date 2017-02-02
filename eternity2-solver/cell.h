@@ -30,9 +30,7 @@ public:
 
     //Creates a cell using top right down and left patterns.
     //Will also create all 4 possible rotations of these patterns
-    Cell(unsigned char top, unsigned char right, unsigned char down, unsigned char left) {
-        //Needs implementing
-    }
+    Cell(unsigned char top, unsigned char right, unsigned char down, unsigned char left);
 
 };
 
