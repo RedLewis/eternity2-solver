@@ -8,13 +8,13 @@
 class Board
 {
     Cell *_board[16][16];
-    int fitness;
+    int _fitness;
 public:
     Board();
     ~Board();
     int getFitness();
     std::pair<Board, Board> operator*(const Board& other);
-private:
+protected:
     int evaluateFitness();
     void mutate();
 };

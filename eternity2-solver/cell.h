@@ -33,5 +33,5 @@ public:
     Cell(unsigned char top, unsigned char right, unsigned char down, unsigned char left);
 
 };
-
+bool operator==(Cell const & lhs, Cell const & rhs);
 #endif // CELL_H
