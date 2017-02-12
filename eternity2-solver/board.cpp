@@ -7,10 +7,9 @@
 
 Board::Board()
 {
-    std::array<Cell*, E2SQUAREPIECES_NBR> tmp;
-    for(int i=0; i < E2SQUAREPIECES_NBR; ++i) {
+    std::array<Cell*, 256 > tmp;
+    for(int i=0; i < 256; ++i) {
         tmp[i] = (new Cell(e2SquarePieces[i][0], e2SquarePieces[i][1], e2SquarePieces[i][2], e2SquarePieces[i][3]));
-        //std::cout << tmp[i] << std::endl;
     }
 
     std::shuffle(tmp.begin(), tmp.end(), std::default_random_engine(rand()));
