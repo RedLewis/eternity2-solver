@@ -7,10 +7,9 @@
 
 Board::Board()
 {
-    std::array<Cell*, E2SQUAREPIECES_NBR> tmp;
-    for(int i=0; i < E2SQUAREPIECES_NBR; ++i) {
-        tmp[i] = (new Cell(e2SquarePieces[i][0], e2SquarePieces[i][1], e2SquarePieces[i][2], e2SquarePieces[i][3]));
-        //std::cout << tmp[i] << std::endl;
+    std::array<Cell*, 256 > tmp;
+    for(int i=0; i < 256; ++i) {
+        tmp[i] = (new Cell(e2SquarePieces[i][0], e2SquarePieces[i][1], e2SquarePieces[i][2], e2SquarePieces[i][3], rand() % 4));
     }
 
     std::shuffle(tmp.begin(), tmp.end(), std::default_random_engine(rand()));
@@ -21,6 +20,14 @@ Board::Board()
         }
     }
     evaluateFitness();
+}
+
+Board::Board(const Board& other) {
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            _board[y][x] = new Cell(*(other._board[y][x]));
+        }
+    }
 }
 
 Board::~Board()
@@ -37,16 +44,17 @@ int Board::getFitness()
     return _fitness;
 }
 
-int Board::evaluateFitness()
+std::pair<Board, Board> regionExchangeCrossover(const Board& board1, const Board& board2)
 {
-    //_fitness =
-    _fitness = 0;
-    return _fitness;
 }
 
 void Board::mutate()
 {
+}
 
+int Board::evaluateFitness()
+{
+    //_fitness =
 }
 
 
@@ -79,7 +87,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
                 os << " ";
                 if (cellLine == 0){
                     os << bgr << "##";
-                    if (_board[boardLine][boardRaw]->data.s_pattern[_board[boardLine][boardRaw]->orientation].top == 0){
+                    if (_board[boardLine][boardRaw]->getTop() == 0){
                         os << blu;
                     }else{
                         os << red;
@@ -87,14 +95,14 @@ std::ostream& Board::_stringify(std::ostream& os)const
                     os << "@@";
                     os << bgr << "##";
                 }else if(cellLine == 1){
-                    if (_board[boardLine][boardRaw]->data.s_pattern[_board[boardLine][boardRaw]->orientation].left == 0){
+                    if (_board[boardLine][boardRaw]->getLeft() == 0){
                         os << blu;
                     }else{
                         os << red;
                     }
                     os << "@@";
                     os << bgr << "##";
-                    if (_board[boardLine][boardRaw]->data.s_pattern[_board[boardLine][boardRaw]->orientation].right == 0){
+                    if (_board[boardLine][boardRaw]->getRight() == 0){
                         os << blu;
                     }else{
                         os << red;
@@ -102,7 +110,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
                      os <<"@@";
                 }else{
                     os << bgr << "##";
-                    if (_board[boardLine][boardRaw]->data.s_pattern[_board[boardLine][boardRaw]->orientation].down == 0){
+                    if (_board[boardLine][boardRaw]->getDown() == 0){
                         os << blu;
                     }else{
                         os << red;

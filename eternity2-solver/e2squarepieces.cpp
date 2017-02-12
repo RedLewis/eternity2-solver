@@ -1,6 +1,6 @@
 #include "e2squarepieces.h"
 
-const unsigned char e2SquarePieces[E2SQUAREPIECES_NBR][4] = {
+const unsigned char e2SquarePieces[256][4] = {
             {1, 0, 0, 17},
             {1, 0, 0, 5},
             {9, 0, 0, 17},
