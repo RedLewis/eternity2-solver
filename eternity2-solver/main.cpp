@@ -12,14 +12,24 @@ int main() {
     else
         std::cout << "not equal" << std::endl;
     */
-    srand(time(NULL));
+    //srand(time(NULL));
     std::stack<Board*> population;
-    while (population.size() < 10){
+    while (population.size() < 1){
         Board* tmp = new Board();
         std::cout << *tmp << std::endl;
         population.push(tmp);
     }
+    population.top()->rotateRegionMutation(15,15,1,1);
+    population.top()->rotateRegionMutation(0,0,0,0);
+    population.top()->rotateRegionMutation(0,0,0,0);
+    population.top()->rotateRegionMutation(0,0,0,0);
 
+        /*
+    population.top()->rotateRegionMutation(0,0,1,1);
+    population.top()->rotateRegionMutation(0,0,1,1);
+    population.top()->rotateRegionMutation(0,0,1,1);
+    */
+    std::cout << *population.top() << std::endl;
     while (population.size() > 0){
         delete population.top();
         population.pop();

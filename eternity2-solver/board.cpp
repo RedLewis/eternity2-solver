@@ -48,9 +48,45 @@ std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Boa
 {
 }
 
-void Board::mutate()
+void Board::rotateRegionMutation(int posX, int posY,int sizeX, int sizeY)
 {
+
+    if ((posX < 0 || posX >= 16) ||
+        (posY < 0 || posY >= 16) ||
+        (sizeX < 0 || sizeX > 16) ||
+        (sizeY < 0 || sizeY > 16) ||
+        (posX + sizeX > 16) ||
+        (posY + sizeY > 16)){
+        std::cerr << "mutation parameter invalid" << std::endl;
+        return;
+    }
+
+    for ( int i = 0; i < sizeX; i++ ) {
+      for ( int j = 0; j < sizeY; j++ ) {
+          _board[posY + i][posX + j]->setRotation(_board[posY + i][posX + j]->getRotation() + 1);
+        }
+    }
+
+    // Transpose the matrix
+    for ( int i = 0; i < sizeX; i++ ) {
+      for ( int j = i + 1; j < sizeY; j++ ) {
+        Cell* tmp = _board[posY + i][posX + j];
+        _board[posY + i][posX + j] = _board[posX + j][posY + i];
+        _board[posX + j][posY + i] = tmp;
+      }
+    }
+
+    // Swap the columns
+    for ( int i = 0; i < sizeX; i++ ) {
+      for ( int j = 0; j < sizeY/2; j++ ) {
+         Cell* tmp = _board[posY + i][posX + j];
+        _board[posY + i][posX + j] = _board[posY + i][posY + (sizeY-1-j)];
+        _board[posY + i][posY + (sizeY-1-j)] = tmp;
+      }
+    }
+    evaluateFitness();
 }
+
 
 int Board::evaluateFitness()
 {

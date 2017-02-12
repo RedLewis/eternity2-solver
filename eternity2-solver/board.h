@@ -17,6 +17,7 @@ public:
     int getFitness();
     std::ostream& _stringify(std::ostream& os)const;
     std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
+    void rotateRegionMutation(int posX, int posY,int sizeX, int sizeY);
 
 protected:
     int evaluateFitness();
