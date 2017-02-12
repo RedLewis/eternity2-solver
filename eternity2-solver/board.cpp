@@ -73,7 +73,7 @@ int Board::evaluateFitness()
             if ((currentCell->getTop() != Cell::EDGE_VALUE && currentCell->getTop() == topCell->getDown())
                     || (currentCell->getTop() == Cell::EDGE_VALUE && topCell == NULL))
                 _fitness += 1;
-            if ((urrentCell->getRight() != Cell::EDGE_VALUE && currentCell->getRight() == rightCell->getLeft())
+            if ((currentCell->getRight() != Cell::EDGE_VALUE && currentCell->getRight() == rightCell->getLeft())
                     || (currentCell->getRight() == Cell::EDGE_VALUE && rightCell == NULL))
                 _fitness += 1;
             if ((currentCell->getDown() != Cell::EDGE_VALUE && currentCell->getDown() == downCell->getTop())
@@ -111,7 +111,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
 
     std::string rst("\e[49m");
 
-    os << "board"<< std::endl;
+    os << "fitness: " << _fitness << std::endl;
 
     while (boardLine < 16){
         cellLine = 0;
