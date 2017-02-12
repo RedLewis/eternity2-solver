@@ -11,13 +11,14 @@ class Board
     int _fitness = -1;
 
 public:
+    enum{MAX_FITNESS = 1088};
     Board();
     Board(const Board& other);
     ~Board();
     int getFitness();
     std::ostream& _stringify(std::ostream& os)const;
     std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
-    void rotateRegionMutation(int posX, int posY,int sizeX, int sizeY);
+    void rotateRegionMutation(int posX, int posY,int size);
 
 protected:
     int evaluateFitness();

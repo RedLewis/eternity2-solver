@@ -19,11 +19,7 @@ int main() {
         std::cout << *tmp << std::endl;
         population.push(tmp);
     }
-    population.top()->rotateRegionMutation(15,15,1,1);
-    population.top()->rotateRegionMutation(0,0,0,0);
-    population.top()->rotateRegionMutation(0,0,0,0);
-    population.top()->rotateRegionMutation(0,0,0,0);
-
+    population.top()->rotateRegionMutation(0,0,1);
         /*
     population.top()->rotateRegionMutation(0,0,1,1);
     population.top()->rotateRegionMutation(0,0,1,1);
