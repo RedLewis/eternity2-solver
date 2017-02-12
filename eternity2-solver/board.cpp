@@ -40,13 +40,90 @@ int Board::getFitness()
 int Board::evaluateFitness()
 {
     //_fitness =
-}
-std::pair<Board, Board> Board::operator*(const Board& other)
-{
-
+    _fitness = 0;
+    return _fitness;
 }
 
 void Board::mutate()
 {
 
+}
+
+
+
+std::ostream& Board::_stringify(std::ostream& os)const
+{
+    int cellLine = 0;
+    int boardLine = 0;
+    int boardRaw = 0;
+    std::string bgr;
+    std::string wht("\e[100m");
+    std::string blk("\e[47m");
+    std::string red("\e[101m");
+    std::string grn("\e[42m");
+    std::string blu("\e[44m");
+    std::string rst("\e[49m");
+
+    os << "board"<< std::endl;
+
+    while (boardLine < 16){
+        cellLine = 0;
+        while (cellLine < 3){
+            boardRaw = 0;
+            while(boardRaw < 16){
+                if (( (boardRaw % 2) &&  (boardLine % 2)) ||
+                    (!(boardRaw % 2) && !(boardLine % 2)))
+                    bgr = wht;
+                else
+                    bgr = blk;
+                os << " ";
+                if (cellLine == 0){
+                    os << bgr << "##";
+                    if (_board[boardLine][boardRaw]->data.s_pattern[_board[boardLine][boardRaw]->orientation].top == 0){
+                        os << blu;
+                    }else{
+                        os << red;
+                    }
+                    os << "@@";
+                    os << bgr << "##";
+                }else if(cellLine == 1){
+                    if (_board[boardLine][boardRaw]->data.s_pattern[_board[boardLine][boardRaw]->orientation].left == 0){
+                        os << blu;
+                    }else{
+                        os << red;
+                    }
+                    os << "@@";
+                    os << bgr << "##";
+                    if (_board[boardLine][boardRaw]->data.s_pattern[_board[boardLine][boardRaw]->orientation].right == 0){
+                        os << blu;
+                    }else{
+                        os << red;
+                    }
+                     os <<"@@";
+                }else{
+                    os << bgr << "##";
+                    if (_board[boardLine][boardRaw]->data.s_pattern[_board[boardLine][boardRaw]->orientation].down == 0){
+                        os << blu;
+                    }else{
+                        os << red;
+                    }
+                    os <<"@@";
+                    os << bgr <<"##";
+                }
+                os << rst;
+                ++boardRaw;
+            }
+            ++cellLine;
+            os << std::endl;
+        }
+        ++boardLine;
+        os << std::endl;
+    }
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Board& other)
+{
+
+    return other._stringify(os);
 }

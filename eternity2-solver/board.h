@@ -14,10 +14,12 @@ public:
     ~Board();
     int getFitness();
     std::pair<Board, Board> operator*(const Board& other);
+    std::ostream& _stringify(std::ostream& os)const;
 protected:
     int evaluateFitness();
     void mutate();
 };
 
+std::ostream& operator<<(std::ostream& os, const Board& other);
 
 #endif // BOARD_H
