@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <iostream>
-
+#include <iomanip>
 Board::Board()
 {
     std::array<Cell*, 256 > tmp;
@@ -57,8 +57,6 @@ int Board::evaluateFitness()
     //_fitness =
 }
 
-
-
 std::ostream& Board::_stringify(std::ostream& os)const
 {
     int cellLine = 0;
@@ -84,39 +82,55 @@ std::ostream& Board::_stringify(std::ostream& os)const
                     bgr = wht;
                 else
                     bgr = blk;
-                os << " ";
+                //os << "  ";
                 if (cellLine == 0){
-                    os << bgr << "##";
+                    os << bgr << "  ";
                     if (_board[boardLine][boardRaw]->getTop() == 0){
                         os << blu;
                     }else{
-                        os << red;
+                        if (boardLine != 0 && _board[boardLine][boardRaw]->getTop() == _board[boardLine - 1][boardRaw]->getDown()){
+                            os << grn;
+                        }else{
+                            os << red;
+                        }
                     }
-                    os << "@@";
-                    os << bgr << "##";
+                    os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_board[boardLine][boardRaw]->getTop();
+                    os << bgr << "  ";
                 }else if(cellLine == 1){
                     if (_board[boardLine][boardRaw]->getLeft() == 0){
                         os << blu;
                     }else{
-                        os << red;
+                        if (boardRaw != 0 && _board[boardLine][boardRaw]->getLeft() == _board[boardLine][boardRaw - 1]->getRight()){
+                            os << grn;
+                        }else{
+                            os << red;
+                        }
                     }
-                    os << "@@";
-                    os << bgr << "##";
+                    os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_board[boardLine][boardRaw]->getLeft();
+                    os << bgr << "  ";
                     if (_board[boardLine][boardRaw]->getRight() == 0){
                         os << blu;
                     }else{
-                        os << red;
-                    }
-                     os <<"@@";
+                        if (boardRaw < 15 && _board[boardLine][boardRaw]->getRight() == _board[boardLine][boardRaw + 1]->getLeft()){
+                            os << grn;
+                        }else{
+                            os << red;
+                        }                    }
+                     os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_board[boardLine][boardRaw]->getRight();
                 }else{
-                    os << bgr << "##";
+                    os << bgr << "  ";
                     if (_board[boardLine][boardRaw]->getDown() == 0){
                         os << blu;
                     }else{
-                        os << red;
-                    }
-                    os <<"@@";
-                    os << bgr <<"##";
+
+                        if (boardLine < 15 && _board[boardLine][boardRaw]->getDown() == _board[boardLine + 1][boardRaw]->getTop()){
+                            os << grn;
+                        }else{
+                            os << red;
+                        }
+                   }
+                   os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_board[boardLine][boardRaw]->getDown();
+                   os << bgr <<"  ";
                 }
                 os << rst;
                 ++boardRaw;
@@ -125,7 +139,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
             os << std::endl;
         }
         ++boardLine;
-        os << std::endl;
+        //os << std::endl;
     }
     return os;
 }
