@@ -7,13 +7,16 @@
 
 class Board
 {
-    Cell *_board[16][16];
-    int _fitness;
+    Cell *_board[16][16] = {};
+    int _fitness = -1;
+
 public:
     Board();
+    Board(const Board& other);
     ~Board();
     int getFitness();
-    std::pair<Board, Board> operator*(const Board& other);
+    std::pair<Board, Board> regionExchangeCrossover(const Board& board1, const Board& board2);
+
 protected:
     int evaluateFitness();
     void mutate();

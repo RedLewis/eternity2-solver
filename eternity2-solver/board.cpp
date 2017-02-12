@@ -9,7 +9,7 @@ Board::Board()
 {
     std::array<Cell*, 256 > tmp;
     for(int i=0; i < 256; ++i) {
-        tmp[i] = (new Cell(e2SquarePieces[i][0], e2SquarePieces[i][1], e2SquarePieces[i][2], e2SquarePieces[i][3]));
+        tmp[i] = (new Cell(e2SquarePieces[i][0], e2SquarePieces[i][1], e2SquarePieces[i][2], e2SquarePieces[i][3], rand() % 4));
     }
 
     std::shuffle(tmp.begin(), tmp.end(), std::default_random_engine(rand()));
@@ -20,6 +20,14 @@ Board::Board()
         }
     }
     evaluateFitness();
+}
+
+Board::Board(const Board& other) {
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            _board[y][x] = new Cell(*(other._board[y][x]));
+        }
+    }
 }
 
 Board::~Board()
@@ -36,13 +44,14 @@ int Board::getFitness()
     return _fitness;
 }
 
+std::pair<Board, Board> regionExchangeCrossover(const Board& board1, const Board& board2)
+{
+    std::pair<Board, Board> childBorads(board1, board2);
+}
+
 int Board::evaluateFitness()
 {
     //_fitness =
-}
-std::pair<Board, Board> Board::operator*(const Board& other)
-{
-
 }
 
 void Board::mutate()
