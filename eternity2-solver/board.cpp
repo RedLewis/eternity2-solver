@@ -70,17 +70,21 @@ int Board::evaluateFitness()
             downCell = (y == 15) ? NULL : _board[y + 1][x];
             leftCell = (x == 0) ? NULL : _board[y][x - 1];
             //Check for matching edges
-            if ((currentCell->getTop() != Cell::EDGE_VALUE && currentCell->getTop() == topCell->getDown())
-                    || (currentCell->getTop() == Cell::EDGE_VALUE && topCell == NULL))
+            if (currentCell->getTop() == Cell::EDGE_VALUE && topCell == NULL)
+                _fitness += 2;
+            else if (currentCell->getTop() != Cell::EDGE_VALUE && topCell != NULL && currentCell->getTop() == topCell->getDown())
                 _fitness += 1;
-            if ((currentCell->getRight() != Cell::EDGE_VALUE && currentCell->getRight() == rightCell->getLeft())
-                    || (currentCell->getRight() == Cell::EDGE_VALUE && rightCell == NULL))
+            if (currentCell->getRight() == Cell::EDGE_VALUE && rightCell == NULL)
+                _fitness += 2;
+            else if (currentCell->getRight() != Cell::EDGE_VALUE && rightCell != NULL && currentCell->getRight() == rightCell->getLeft())
                 _fitness += 1;
-            if ((currentCell->getDown() != Cell::EDGE_VALUE && currentCell->getDown() == downCell->getTop())
-                    || (currentCell->getDown() == Cell::EDGE_VALUE && downCell == NULL))
+            if (currentCell->getDown() == Cell::EDGE_VALUE && downCell == NULL)
+                _fitness += 2;
+            else if (currentCell->getDown() != Cell::EDGE_VALUE && downCell != NULL && currentCell->getDown() == downCell->getTop())
                 _fitness += 1;
-            if ((currentCell->getLeft() != Cell::EDGE_VALUE && currentCell->getLeft() == leftCell->getRight())
-                    || (currentCell->getLeft() == Cell::EDGE_VALUE && leftCell == NULL))
+            if (currentCell->getLeft() == Cell::EDGE_VALUE && leftCell == NULL)
+                _fitness += 2;
+            else if (currentCell->getLeft() != Cell::EDGE_VALUE && leftCell != NULL && currentCell->getLeft() == leftCell->getRight())
                 _fitness += 1;
         }
     }
