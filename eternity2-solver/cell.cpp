@@ -35,23 +35,23 @@ Cell::Cell(const Cell& other)
     _data.i_pattern[3] = other._data.i_pattern[3];
 }
 
-unsigned char Cell::getTop() {
+unsigned char Cell::getTop() const {
     return _data.s_pattern[_rotation].top;
 }
 
-unsigned char Cell::getRight() {
+unsigned char Cell::getRight() const {
     return _data.s_pattern[_rotation].right;
 }
 
-unsigned char Cell::getDown() {
+unsigned char Cell::getDown() const {
     return _data.s_pattern[_rotation].down;
 }
 
-unsigned char Cell::getLeft() {
+unsigned char Cell::getLeft() const {
     return _data.s_pattern[_rotation].left;
 }
 
-unsigned char Cell::getRotation() {
+unsigned char Cell::getRotation() const {
     return _rotation;
 }
 
