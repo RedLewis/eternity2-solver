@@ -138,7 +138,12 @@ std::ostream& Board::_stringify(std::ostream& os)const
                 if (cellLine == 0){
                     os << bgr << "  ";
                     if (_board[boardLine][boardRaw]->getTop() == 0){
-                        os << blu;
+                        if (boardLine == 0){
+                            //match
+                            os << grn;
+                        }else{
+                            os << blu;
+                        }
                     }else{
                         if (boardLine != 0 && _board[boardLine][boardRaw]->getTop() == _board[boardLine - 1][boardRaw]->getDown()){
                             os << grn;
@@ -150,7 +155,12 @@ std::ostream& Board::_stringify(std::ostream& os)const
                     os << bgr << "  ";
                 }else if(cellLine == 1){
                     if (_board[boardLine][boardRaw]->getLeft() == 0){
-                        os << blu;
+                        if (boardRaw == 0){
+                            //match
+                            os << grn;
+                        }else{
+                            os << blu;
+                        }
                     }else{
                         if (boardRaw != 0 && _board[boardLine][boardRaw]->getLeft() == _board[boardLine][boardRaw - 1]->getRight()){
                             os << grn;
@@ -161,7 +171,12 @@ std::ostream& Board::_stringify(std::ostream& os)const
                     os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_board[boardLine][boardRaw]->getLeft();
                     os << bgr << "  ";
                     if (_board[boardLine][boardRaw]->getRight() == 0){
-                        os << blu;
+                        if (boardRaw == 15){
+                            //match
+                            os << grn;
+                        }else{
+                            os << blu;
+                        }
                     }else{
                         if (boardRaw < 15 && _board[boardLine][boardRaw]->getRight() == _board[boardLine][boardRaw + 1]->getLeft()){
                             os << grn;
@@ -172,7 +187,12 @@ std::ostream& Board::_stringify(std::ostream& os)const
                 }else{
                     os << bgr << "  ";
                     if (_board[boardLine][boardRaw]->getDown() == 0){
-                        os << blu;
+                        if (boardLine ==15){
+                            //match
+                            os << grn;
+                        }else{
+                            os << blu;
+                        }
                     }else{
 
                         if (boardLine < 15 && _board[boardLine][boardRaw]->getDown() == _board[boardLine + 1][boardRaw]->getTop()){
