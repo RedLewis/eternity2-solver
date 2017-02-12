@@ -23,6 +23,10 @@ public:
 protected:
     int evaluateFitness();
     void mutate();
+
+public:
+    void swapSquare(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);
+    void rotateSquare(int posX, int posY, int size);
 };
 
 std::ostream& operator<<(std::ostream& os, const Board& other);

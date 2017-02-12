@@ -19,7 +19,7 @@ int main() {
         std::cout << *tmp << std::endl;
         population.push(tmp);
     }
-    population.top()->rotateRegionMutation(0,0,1);
+    population.top()->swapSquare(0,0,1,0,1,1);
         /*
     population.top()->rotateRegionMutation(0,0,1,1);
     population.top()->rotateRegionMutation(0,0,1,1);

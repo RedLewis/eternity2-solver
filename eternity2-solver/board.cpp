@@ -48,9 +48,8 @@ std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Boa
 {
 }
 
-void Board::rotateRegionMutation(int posX, int posY,int size)
+void Board::rotateSquare(int posX, int posY,int size)
 {
-
     if ((posX < 0 || posX >= 16) ||
         (posY < 0 || posY >= 16) ||
         (size < 0 || size > 16) ||
@@ -65,7 +64,6 @@ void Board::rotateRegionMutation(int posX, int posY,int size)
           _board[posY + i][posX + j]->setRotation(_board[posY + i][posX + j]->getRotation() + 1);
         }
     }
-
     // Transpose the matrix
     for ( int i = 0; i < size; i++ ) {
       for ( int j = i + 1; j < size; j++ ) {
@@ -74,7 +72,6 @@ void Board::rotateRegionMutation(int posX, int posY,int size)
         _board[posX + j][posY + i] = tmp;
       }
     }
-
     // Swap the columns
     for ( int i = 0; i < size; i++ ) {
       for ( int j = 0; j < size/2; j++ ) {
@@ -83,7 +80,41 @@ void Board::rotateRegionMutation(int posX, int posY,int size)
         _board[posY + i][posY + (size-1-j)] = tmp;
       }
     }
-    evaluateFitness();
+}
+// ne gere pas les overlap
+void Board::swapSquare(int posXa, int posYa,int posXb, int posYb, int sizeX, int sizeY)
+{
+    if ((posXa < 0 || posXa >= 16) ||
+        (posYa < 0 || posYa >= 16) ||
+        (posXb < 0 || posXb >= 16) ||
+        (posYb < 0 || posYb >= 16) ||
+        (sizeX < 0 || sizeX > 16) ||
+        (sizeY < 0 || sizeY > 16) ||
+        (posXa + sizeX > 16) ||
+        (posYa + sizeY > 16) ||
+        (posXb + sizeX > 16) ||
+        (posYb + sizeY > 16)){
+        std::cerr << "mutation parameter invalid" << std::endl;
+        return;
+    }
+
+    if (((posXb >= posXa && posXb < (posXa + sizeX)) && (posYb >= posYa && posYb < (posYa + sizeY))) ||
+        ((posXa >= posXb && posXa < (posXb + sizeX)) && (posYa >= posYb && posYa < (posYb + sizeY)))){
+        std::cerr << "mutation parameter invalid overlap not handled" << std::endl;
+        return;
+    }
+    for ( int i = 0; i < sizeY; i++ ) {
+      for ( int j = 0; j < sizeX; j++ ) {
+          Cell* tmp = _board[posYa + i][posXa + j];
+          _board[posYa + i][posXa + j] = _board[posYb + i][posXb + j];
+          _board[posYb + i][posXb + j] = tmp;
+        }
+    }
+}
+
+void Board::rotateRegionMutation(int posX, int posY,int size)
+{
+    rotateSquare(posX, posY, size);
 }
 
 
