@@ -65,9 +65,19 @@ std::ostream& Board::_stringify(std::ostream& os)const
     std::string bgr;
     std::string wht("\e[100m");
     std::string blk("\e[47m");
-    std::string red("\e[101m");
-    std::string grn("\e[42m");
-    std::string blu("\e[44m");
+
+    std::string red;
+    std::string grn;
+    std::string blu;
+
+    std::string red_w("\e[1;100;31m");
+    std::string grn_w("\e[1;102;90m");
+    std::string blu_w("\e[1;104;90m");
+
+    std::string red_b("\e[1;47;91m");
+    std::string grn_b("\e[1;42;37m");
+    std::string blu_b("\e[1;44;37m");
+
     std::string rst("\e[49m");
 
     os << "board"<< std::endl;
@@ -78,10 +88,17 @@ std::ostream& Board::_stringify(std::ostream& os)const
             boardRaw = 0;
             while(boardRaw < 16){
                 if (( (boardRaw % 2) &&  (boardLine % 2)) ||
-                    (!(boardRaw % 2) && !(boardLine % 2)))
+                    (!(boardRaw % 2) && !(boardLine % 2))){
                     bgr = wht;
-                else
+                    red = red_w;
+                    blu = blu_w;
+                    grn = grn_w;
+                }else{
                     bgr = blk;
+                    red = red_b;
+                    blu = blu_b;
+                    grn = grn_b;
+                }
                 //os << "  ";
                 if (cellLine == 0){
                     os << bgr << "  ";

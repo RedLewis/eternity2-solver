@@ -2,7 +2,7 @@
 #include "board.h"
 #include <iostream>
 #include <stack>
-
+#include <time.h>
 int main() {
     /*
     Cell cell(1,2,3,4);
@@ -12,7 +12,7 @@ int main() {
     else
         std::cout << "not equal" << std::endl;
     */
-
+    srand(time(NULL));
     std::stack<Board*> population;
     while (population.size() < 1){
         Board* tmp = new Board();
