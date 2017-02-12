@@ -25,6 +25,11 @@ private:
     unsigned char _rotation = 0; //From 0 to 3
 
 public:
+
+    enum {
+        EDGE_VALUE = 0
+    };
+
     //Creates a cell using top right down and left patterns.
     //Will also create all 4 possible rotations of these patterns
     Cell(unsigned char top, unsigned char right,
@@ -33,11 +38,11 @@ public:
     Cell(const Cell& other);
 
 
-    unsigned char getTop();
-    unsigned char getRight();
-    unsigned char getDown();
-    unsigned char getLeft();
-    unsigned char getRotation();
+    unsigned char getTop() const;
+    unsigned char getRight() const;
+    unsigned char getDown() const;
+    unsigned char getLeft() const;
+    unsigned char getRotation() const;
     void setRotation(unsigned char rotation);
 
 };

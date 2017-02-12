@@ -44,7 +44,7 @@ int Board::getFitness()
     return _fitness;
 }
 
-std::pair<Board, Board> regionExchangeCrossover(const Board& board1, const Board& board2)
+std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2)
 {
 }
 
@@ -54,7 +54,38 @@ void Board::mutate()
 
 int Board::evaluateFitness()
 {
-    //_fitness =
+    const Cell* topCell;
+    const Cell* rightCell;
+    const Cell* downCell;
+    const Cell* leftCell;
+    const Cell* currentCell;
+
+    _fitness = 0;
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            //Get neighbor cells
+            currentCell = _board[y][x];
+            topCell = (y == 0) ? NULL : _board[y - 1][x];
+            rightCell = (x == 15) ? NULL : _board[y][x + 1];
+            downCell = (y == 15) ? NULL : _board[y + 1][x];
+            leftCell = (x == 0) ? NULL : _board[y][x - 1];
+            //Check for matching edges
+            if ((currentCell->getTop() != Cell::EDGE_VALUE && currentCell->getTop() == topCell->getDown())
+                    || (currentCell->getTop() == Cell::EDGE_VALUE && topCell == NULL))
+                _fitness += 1;
+            if ((urrentCell->getRight() != Cell::EDGE_VALUE && currentCell->getRight() == rightCell->getLeft())
+                    || (currentCell->getRight() == Cell::EDGE_VALUE && rightCell == NULL))
+                _fitness += 1;
+            if ((currentCell->getDown() != Cell::EDGE_VALUE && currentCell->getDown() == downCell->getTop())
+                    || (currentCell->getDown() == Cell::EDGE_VALUE && downCell == NULL))
+                _fitness += 1;
+            if ((currentCell->getLeft() != Cell::EDGE_VALUE && currentCell->getLeft() == leftCell->getRight())
+                    || (currentCell->getLeft() == Cell::EDGE_VALUE && leftCell == NULL))
+                _fitness += 1;
+        }
+    }
+
+    return _fitness;
 }
 
 

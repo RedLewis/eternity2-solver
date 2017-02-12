@@ -16,7 +16,7 @@ public:
     ~Board();
     int getFitness();
     std::ostream& _stringify(std::ostream& os)const;
-    std::pair<Board, Board> regionExchangeCrossover(const Board& board1, const Board& board2);
+    std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
 
 protected:
     int evaluateFitness();
