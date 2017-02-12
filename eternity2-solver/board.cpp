@@ -113,7 +113,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
     std::string grn_b("\e[1;42;37m");
     std::string blu_b("\e[1;44;37m");
 
-    std::string rst("\e[49m");
+    std::string rst("\e[0m");
 
     os << "fitness: " << _fitness << std::endl;
 
@@ -188,6 +188,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
                 ++boardRaw;
             }
             ++cellLine;
+            os << rst;
             os << std::endl;
         }
         ++boardLine;

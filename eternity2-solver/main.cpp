@@ -14,7 +14,7 @@ int main() {
     */
     srand(time(NULL));
     std::stack<Board*> population;
-    while (population.size() < 1){
+    while (population.size() < 10){
         Board* tmp = new Board();
         std::cout << *tmp << std::endl;
         population.push(tmp);
