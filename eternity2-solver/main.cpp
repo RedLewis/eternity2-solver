@@ -1,4 +1,4 @@
-#include "cell.h"
+#include "tile.h"
 #include "board.h"
 #include <iostream>
 #include <list>
@@ -33,7 +33,7 @@ int main() {
     std::generate(population.begin(), population.end(), [](){
         return new Board();
     });
-
+/*
     while ((*population.begin())->getFitness() != Board::MAX_FITNESS){
 
         for( auto individual : population){
@@ -46,7 +46,7 @@ int main() {
             return first->getFitness() > second->getFitness();
         });
     }
-
+*/
     std::cout << (**population.begin()) << std::endl;
     population.remove_if([](Board* pop){
         delete pop;

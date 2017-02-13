@@ -12,14 +12,16 @@ CONFIG -= qt
 }
 
 SOURCES += main.cpp \
-    cell.cpp \
     board.cpp \
-    e2squarepieces.cpp \
-    population.cpp
+    population.cpp \
+    e2tiles.cpp \
+    tile.cpp
+    tile.cpp
 
 HEADERS += \
-    cell.h \
     aligned.h \
     board.h \
-    e2squarepieces.h \
-    population.h
+    population.h \
+    e2tiles.h \
+    tile.h
+    tile.h

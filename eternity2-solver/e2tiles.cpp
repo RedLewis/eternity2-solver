@@ -1,6 +1,6 @@
-#include "e2squarepieces.h"
+#include "e2tiles.h"
 
-const unsigned char e2SquarePieces[256][4] = {
+const unsigned char E2TILES[256][4] = {
             {1, 0, 0, 17},
             {1, 0, 0, 5},
             {9, 0, 0, 17},
