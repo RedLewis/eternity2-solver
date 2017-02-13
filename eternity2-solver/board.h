@@ -33,9 +33,7 @@ public:
     std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
     void rotateRegionMutation();
     void swapRegionMutation();
-protected:
-    int evaluateFitness();
-    void mutate();
+    int evaluate();
 
 public:
     void swapRectangle(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);

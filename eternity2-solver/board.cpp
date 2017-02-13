@@ -26,7 +26,7 @@ Board::Board()
             _tiles[y][x] = tmp[index++];
         }
     }
-    evaluateFitness();
+    evaluate();
 }
 
 Board::Board(const Board& other) {
@@ -277,8 +277,11 @@ void Board::rotateRegionMutation()
     int x = std::rand() % 16;
     int y = std::rand() % 16;
     //todo
-    int size = std::rand() % (16 - x);
-
+    int size;
+    if (x > y)
+        size = std::rand() % (16 - x);
+    else
+        size = std::rand() % (16 - y);
     rotateSquare(x, y, size);
 }
 
@@ -303,7 +306,7 @@ void Board::swapRegionMutation()
 }
 
 
-int Board::evaluateFitness()
+int Board::evaluate()
 {
     const Tile* topCell;
     const Tile* rightCell;

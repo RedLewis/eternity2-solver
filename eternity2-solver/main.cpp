@@ -6,50 +6,24 @@
 #include <algorithm>
 #include "population.h"
 #include <chrono>
-int main() {
-/*
-    Board tmp;
-    //std::cout << tmp << std::endl;
-    tmp.swapRectangle(0,0,5,5,10,10);
-    tmp.swapRectangle(5,5,0,0,10,10);
-
-    tmp.swapRectangle(0,5,0,0,10,10);
-    tmp.swapRectangle(5,0,0,0,10,10);
-
-    tmp.swapRectangle(0,0,5,0,10,10);
-    tmp.swapRectangle(0,0,0,5,10,10);
-
-    tmp.swapRectangle(5,5,5,5,10,10);
-    tmp.swapRectangle(0,0,0,0,10,10);
-*/
-
+int main()
+{
     srand(time(NULL));
+    int lastBestFitness = 0;
+    Population pop(10000);
+    while (pop.getBestBoard()->getFitness() != Board::MAX_FITNESS)
+    {
+        pop.mutate();
+        pop.evaluate();
+       if (lastBestFitness < pop.getBestBoard()->getFitness())
+       {
+           std::cout << "Fitness:" << std::endl;
+           std::cout << "\tbest:" << pop.getBestBoard()->getFitness() << std::endl;
+           std::cout << "\taverage:" << pop.getAverageFitness() << std::endl;
+           std::cout << "\tworst:" << pop.getWorstBoard()->getFitness() << std::endl;
 
-    Population pop(100);
-    std::cout << pop.getAverageFitness() << std::endl;
-    //srand(time(NULL));
-
-    std::list<Board*> population(100);
-    std::generate(population.begin(), population.end(), [](){
-        return new Board();
-    });
-/*
-    while ((*population.begin())->getFitness() != Board::MAX_FITNESS){
-
-        for( auto individual : population){
-            std::cout << individual->getFitness() << std::endl;
-        }
-        //std::cout << *((Board*)(*population.begin()))<< std::endl;
-        std::cout << (*population.begin())->getFitness() << std::endl;
-
-        population.sort([](Board*& first, Board*& second){
-            return first->getFitness() > second->getFitness();
-        });
+           lastBestFitness = pop.getBestBoard()->getFitness();
+            std::cout << *pop.getBestBoard() << std::endl;
+       }
     }
-*/
-    std::cout << (**population.begin()) << std::endl;
-    population.remove_if([](Board* pop){
-        delete pop;
-        return true;
-    });
 }

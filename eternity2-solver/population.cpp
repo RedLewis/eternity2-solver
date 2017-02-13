@@ -13,13 +13,26 @@ Population::Population(int size): _pop(size)
 
 Population::~Population()
 {
-    _pop.remove_if([](Board* pop){
-        delete pop;
+    _pop.remove_if([](Board* b){
+        delete b;
         return true;
     });
 }
 
+void Population::mutate()
+{
+    for (auto individual : _pop)
+    {
+        if (individual != _best)
+            individual->rotateRegionMutation();
+    }
+}
+
 void Population::evaluate(){
+    for (auto individual : _pop)
+    {
+        individual->evaluate();
+    }
     _pop.sort([](Board*& first, Board*& second){
         return first->getFitness() > second->getFitness();
     });
@@ -41,4 +54,14 @@ unsigned int Population::getGeneration()const
 unsigned int Population::getAverageFitness()const
 {
     return _averageFitness;
+}
+
+Board* Population::getBestBoard()const
+{
+    return (*_pop.begin());
+}
+
+Board* Population::getWorstBoard()const
+{
+    return (*std::prev(_pop.end()));
 }
