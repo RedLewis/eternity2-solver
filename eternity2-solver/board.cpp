@@ -1,22 +1,25 @@
 #include "board.h"
-#include "e2squarepieces.h"
+#include "e2tiles.h"
 #include <array>
 #include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <iomanip>
+#include <list>
+#include <cassert>
+
 Board::Board()
 {
-    std::array<Cell*, 256 > tmp;
+    std::array<Tile*, 256 > tmp;
     for(int i=0; i < 256; ++i) {
-        tmp[i] = (new Cell(e2SquarePieces[i][0], e2SquarePieces[i][1], e2SquarePieces[i][2], e2SquarePieces[i][3], rand() % 4));
+        tmp[i] = (new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], rand() % 4));
     }
 
     std::shuffle(tmp.begin(), tmp.end(), std::default_random_engine(rand()));
     int index = 0;
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
-            _board[y][x] = tmp[index++];
+            _tiles[y][x] = tmp[index++];
         }
     }
     evaluateFitness();
@@ -25,7 +28,7 @@ Board::Board()
 Board::Board(const Board& other) {
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
-            _board[y][x] = new Cell(*(other._board[y][x]));
+            _tiles[y][x] = new Tile(*(other._tiles[y][x]));
         }
     }
 }
@@ -34,7 +37,7 @@ Board::~Board()
 {
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
-            delete _board[y][x];
+            delete _tiles[y][x];
         }
     }
 }
@@ -44,8 +47,78 @@ int Board::getFitness()
     return _fitness;
 }
 
-std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2)
+std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, const Board& parentB)
 {
+
+    // Select a random region
+    unsigned char width = 1 + rand() % 16;
+    unsigned char height = 1 + rand() % 16;
+    Point<unsigned char> pointA(rand() % (16 - (width - 1)),
+                                rand() % (16 - (height - 1)));
+    Point<unsigned char> pointB(rand() % (16 - (width - 1)),
+                                rand() % (16 - (height - 1)));
+
+    //Clone the two parents
+    std::pair<Board*, Board*> children(new Board(parentA), new Board(parentB));
+
+    //Remove from parent A all tiles that are inside the region in parent B
+    for (int y = pointB.y; y < (pointB.y + height); ++y) {
+        for (int x = pointB.x; x < (pointB.x + width); ++x) {
+            delete children.first->_tiles[y][x];
+            children.first->_tiles[y][x] = NULL;
+        }
+    }
+
+    //Remove from parent B all tiles that are inside the region in parent A
+    for (int y = pointA.y; y < (pointA.y + height); ++y) {
+        for (int x = pointA.x; x < (pointA.x + width); ++x) {
+            delete children.second->_tiles[y][x];
+            children.second->_tiles[y][x] = NULL;
+        }
+    }
+
+    //Add the tiles remaining in both regions to two separate lists: list A and list B
+    std::list<Tile*> listA;
+    for (int y = pointA.y; y < (pointA.y + height); ++y) {
+        for (int x = pointA.x; x < (pointA.x + width); ++x) {
+            listA.push_back(children.first->_tiles[y][x]);
+            children.first->_tiles[y][x] = NULL;
+        }
+    }
+    std::list<Tile*> listB;
+    for (int y = pointB.y; y < (pointB.y + height); ++y) {
+        for (int x = pointB.x; x < (pointB.x + width); ++x) {
+            listB.push_back(children.second->_tiles[y][x]);
+            children.second->_tiles[y][x] = NULL;
+        }
+    }
+
+    //Copy to parent A’s region all tiles that in parent B’s region
+    //Copy to parent B’s region all tiles that in parent A’s region
+    {
+        Point<unsigned char> indexA(pointA);
+        Point<unsigned char> indexB(pointB);
+        for (int y = 0; y < height; ++y) {
+            ++indexA.y;
+            ++indexB.y;
+            for (int x = 0; x < width; ++x) {
+                ++indexA.x;
+                ++indexB.x;
+                //Copy to parent A’s region all tiles that in parent B’s region
+                assert(children.first->_tiles[indexA.y][indexA.x] == NULL);
+                assert(children.second->_tiles[indexB.y][indexB.x] != NULL);
+                children.first->_tiles[indexA.y][indexA.x] = new Tile(*(children.second->_tiles[indexB.y][indexB.x]));
+                //Copy to parent B’s region all tiles that in parent A’s region
+                assert(children.second->_tiles[indexB.y][indexB.x] == NULL);
+                assert(children.first->_tiles[indexA.y][indexA.x] != NULL);
+                children.second->_tiles[indexB.y][indexB.x] = new Tile(*(children.first->_tiles[indexA.y][indexA.x]));
+
+            }
+        }
+    }
+
+
+    return children;
 }
 
 void Board::rotateSquare(int posX, int posY,int size)
@@ -61,23 +134,23 @@ void Board::rotateSquare(int posX, int posY,int size)
 
     for ( int i = 0; i < size; ++i ) {
       for ( int j = 0; j < size; ++j ) {
-          _board[posY + i][posX + j]->setRotation(_board[posY + i][posX + j]->getRotation() + 1);
+          _tiles[posY + i][posX + j]->setRotation(_tiles[posY + i][posX + j]->getRotation() + 1);
         }
     }
     // Transpose the matrix
     for ( int i = 0; i < size; ++i ) {
       for ( int j = i + 1; j < size; ++j ) {
-        Cell* tmp = _board[posY + i][posX + j];
-        _board[posY + i][posX + j] = _board[posX + j][posY + i];
-        _board[posX + j][posY + i] = tmp;
+        Tile* tmp = _tiles[posY + i][posX + j];
+        _tiles[posY + i][posX + j] = _tiles[posX + j][posY + i];
+        _tiles[posX + j][posY + i] = tmp;
       }
     }
     // Swap the columns
     for ( int i = 0; i < size; ++i ) {
       for ( int j = 0; j < size/2; ++j ) {
-         Cell* tmp = _board[posY + i][posX + j];
-        _board[posY + i][posX + j] = _board[posY + i][posY + (size-1-j)];
-        _board[posY + i][posY + (size-1-j)] = tmp;
+         Tile* tmp = _tiles[posY + i][posX + j];
+        _tiles[posY + i][posX + j] = _tiles[posY + i][posY + (size-1-j)];
+        _tiles[posY + i][posY + (size-1-j)] = tmp;
       }
     }
 }
@@ -128,18 +201,18 @@ void Board::swapSquare(int posXa, int posYa,int posXb, int posYb, int sizeX, int
         std::cerr << "mutation parameter invalid" << std::endl;
         return;
     }
-    Cell *cpy[sizeY][sizeX] = {};
+    Tile *cpy[sizeY][sizeX] = {};
 
     for ( int i = 0; i < sizeY; ++i ) {
       for ( int j = 0; j < sizeX; ++j ) {
-          cpy[i][j] = _board[posYa + i][posXa + j];
-          _board[posYa + i][posXa + j] = _board[posYb + i][posXb + j];
+          cpy[i][j] = _tiles[posYa + i][posXa + j];
+          _tiles[posYa + i][posXa + j] = _tiles[posYb + i][posXb + j];
         }
     }
 
     for ( int i = 0; i < sizeY; ++i ) {
       for ( int j = 0; j < sizeX; ++j ) {
-          _board[posYb + i][posXb + j] = cpy[i][j];
+          _tiles[posYb + i][posXb + j] = cpy[i][j];
         }
     }
 
@@ -153,37 +226,37 @@ void Board::rotateRegionMutation(int posX, int posY,int size)
 
 int Board::evaluateFitness()
 {
-    const Cell* topCell;
-    const Cell* rightCell;
-    const Cell* downCell;
-    const Cell* leftCell;
-    const Cell* currentCell;
+    const Tile* topCell;
+    const Tile* rightCell;
+    const Tile* downCell;
+    const Tile* leftCell;
+    const Tile* currentCell;
 
     _fitness = 0;
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             //Get neighbor cells
-            currentCell = _board[y][x];
-            topCell = (y == 0) ? NULL : _board[y - 1][x];
-            rightCell = (x == 15) ? NULL : _board[y][x + 1];
-            downCell = (y == 15) ? NULL : _board[y + 1][x];
-            leftCell = (x == 0) ? NULL : _board[y][x - 1];
+            currentCell = _tiles[y][x];
+            topCell = (y == 0) ? NULL : _tiles[y - 1][x];
+            rightCell = (x == 15) ? NULL : _tiles[y][x + 1];
+            downCell = (y == 15) ? NULL : _tiles[y + 1][x];
+            leftCell = (x == 0) ? NULL : _tiles[y][x - 1];
             //Check for matching edges
-            if (currentCell->getTop() == Cell::EDGE_VALUE && topCell == NULL)
+            if (currentCell->getTop() == Tile::EDGE_VALUE && topCell == NULL)
                 _fitness += 2;
-            else if (currentCell->getTop() != Cell::EDGE_VALUE && topCell != NULL && currentCell->getTop() == topCell->getDown())
+            else if (currentCell->getTop() != Tile::EDGE_VALUE && topCell != NULL && currentCell->getTop() == topCell->getDown())
                 _fitness += 1;
-            if (currentCell->getRight() == Cell::EDGE_VALUE && rightCell == NULL)
+            if (currentCell->getRight() == Tile::EDGE_VALUE && rightCell == NULL)
                 _fitness += 2;
-            else if (currentCell->getRight() != Cell::EDGE_VALUE && rightCell != NULL && currentCell->getRight() == rightCell->getLeft())
+            else if (currentCell->getRight() != Tile::EDGE_VALUE && rightCell != NULL && currentCell->getRight() == rightCell->getLeft())
                 _fitness += 1;
-            if (currentCell->getDown() == Cell::EDGE_VALUE && downCell == NULL)
+            if (currentCell->getDown() == Tile::EDGE_VALUE && downCell == NULL)
                 _fitness += 2;
-            else if (currentCell->getDown() != Cell::EDGE_VALUE && downCell != NULL && currentCell->getDown() == downCell->getTop())
+            else if (currentCell->getDown() != Tile::EDGE_VALUE && downCell != NULL && currentCell->getDown() == downCell->getTop())
                 _fitness += 1;
-            if (currentCell->getLeft() == Cell::EDGE_VALUE && leftCell == NULL)
+            if (currentCell->getLeft() == Tile::EDGE_VALUE && leftCell == NULL)
                 _fitness += 2;
-            else if (currentCell->getLeft() != Cell::EDGE_VALUE && leftCell != NULL && currentCell->getLeft() == leftCell->getRight())
+            else if (currentCell->getLeft() != Tile::EDGE_VALUE && leftCell != NULL && currentCell->getLeft() == leftCell->getRight())
                 _fitness += 1;
         }
     }
@@ -236,7 +309,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
                 //os << "  ";
                 if (cellLine == 0){
                     os << bgr << "  ";
-                    if (_board[boardLine][boardRaw]->getTop() == 0){
+                    if (_tiles[boardLine][boardRaw]->getTop() == 0){
                         if (boardLine == 0){
                             //match
                             os << grn;
@@ -244,16 +317,16 @@ std::ostream& Board::_stringify(std::ostream& os)const
                             os << blu;
                         }
                     }else{
-                        if (boardLine != 0 && _board[boardLine][boardRaw]->getTop() == _board[boardLine - 1][boardRaw]->getDown()){
+                        if (boardLine != 0 && _tiles[boardLine][boardRaw]->getTop() == _tiles[boardLine - 1][boardRaw]->getDown()){
                             os << grn;
                         }else{
                             os << red;
                         }
                     }
-                    os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_board[boardLine][boardRaw]->getTop();
+                    os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw]->getTop();
                     os << bgr << "  ";
                 }else if(cellLine == 1){
-                    if (_board[boardLine][boardRaw]->getLeft() == 0){
+                    if (_tiles[boardLine][boardRaw]->getLeft() == 0){
                         if (boardRaw == 0){
                             //match
                             os << grn;
@@ -261,15 +334,15 @@ std::ostream& Board::_stringify(std::ostream& os)const
                             os << blu;
                         }
                     }else{
-                        if (boardRaw != 0 && _board[boardLine][boardRaw]->getLeft() == _board[boardLine][boardRaw - 1]->getRight()){
+                        if (boardRaw != 0 && _tiles[boardLine][boardRaw]->getLeft() == _tiles[boardLine][boardRaw - 1]->getRight()){
                             os << grn;
                         }else{
                             os << red;
                         }
                     }
-                    os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_board[boardLine][boardRaw]->getLeft();
+                    os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw]->getLeft();
                     os << bgr << "  ";
-                    if (_board[boardLine][boardRaw]->getRight() == 0){
+                    if (_tiles[boardLine][boardRaw]->getRight() == 0){
                         if (boardRaw == 15){
                             //match
                             os << grn;
@@ -277,15 +350,15 @@ std::ostream& Board::_stringify(std::ostream& os)const
                             os << blu;
                         }
                     }else{
-                        if (boardRaw < 15 && _board[boardLine][boardRaw]->getRight() == _board[boardLine][boardRaw + 1]->getLeft()){
+                        if (boardRaw < 15 && _tiles[boardLine][boardRaw]->getRight() == _tiles[boardLine][boardRaw + 1]->getLeft()){
                             os << grn;
                         }else{
                             os << red;
                         }                    }
-                     os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_board[boardLine][boardRaw]->getRight();
+                     os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw]->getRight();
                 }else{
                     os << bgr << "  ";
-                    if (_board[boardLine][boardRaw]->getDown() == 0){
+                    if (_tiles[boardLine][boardRaw]->getDown() == 0){
                         if (boardLine ==15){
                             //match
                             os << grn;
@@ -294,13 +367,13 @@ std::ostream& Board::_stringify(std::ostream& os)const
                         }
                     }else{
 
-                        if (boardLine < 15 && _board[boardLine][boardRaw]->getDown() == _board[boardLine + 1][boardRaw]->getTop()){
+                        if (boardLine < 15 && _tiles[boardLine][boardRaw]->getDown() == _tiles[boardLine + 1][boardRaw]->getTop()){
                             os << grn;
                         }else{
                             os << red;
                         }
                    }
-                   os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_board[boardLine][boardRaw]->getDown();
+                   os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw]->getDown();
                    os << bgr <<"  ";
                 }
                 os << rst;

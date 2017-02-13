@@ -1,4 +1,4 @@
-#include "cell.h"
+#include "tile.h"
 #include "board.h"
 #include <iostream>
 #include <list>

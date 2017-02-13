@@ -2,16 +2,29 @@
 #define BOARD_H
 
 #include <utility>
-#include "cell.h"
-#include "e2squarepieces.h"
+#include "tile.h"
+#include "e2tiles.h"
+
+template <typename NumType>
+struct Point {
+    NumType x = 0;
+    NumType y = 0;
+    Point(NumType x, NumType y) : x(x), y(y) {}
+    Point(const Point& p) : x(p.x), y(p.y) {}
+    Point() {}
+};
 
 class Board
 {
-    Cell *_board[16][16] = {};
+    Tile *_tiles[16][16] = {};
     int _fitness = -1;
 
 public:
-    enum{MAX_FITNESS = 1088};
+
+    enum  {
+        MAX_FITNESS = 1088
+    };
+
     Board();
     Board(const Board& other);
     ~Board();

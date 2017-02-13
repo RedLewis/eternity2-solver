@@ -3,7 +3,7 @@
 
 #include "aligned.h"
 
-class Cell : public Aligned<Alignment::SSE>
+class Tile : public Aligned<Alignment::SSE>
 {
 private:
 
@@ -32,10 +32,10 @@ public:
 
     //Creates a cell using top right down and left patterns.
     //Will also create all 4 possible rotations of these patterns
-    Cell(unsigned char top, unsigned char right,
+    Tile(unsigned char top, unsigned char right,
          unsigned char down, unsigned char left,
          unsigned char rotation);
-    Cell(const Cell& other);
+    Tile(const Tile& other);
 
 
     unsigned char getTop() const;

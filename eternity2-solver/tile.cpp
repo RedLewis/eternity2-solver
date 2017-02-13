@@ -1,6 +1,6 @@
-#include "cell.h"
+#include "tile.h"
 #include <iostream>
-Cell::Cell(unsigned char top, unsigned char right,
+Tile::Tile(unsigned char top, unsigned char right,
            unsigned char down, unsigned char left,
            unsigned char rotation) {
     _rotation = rotation % 4;
@@ -26,7 +26,7 @@ Cell::Cell(unsigned char top, unsigned char right,
     _data.s_pattern[3].left = top;
 }
 
-Cell::Cell(const Cell& other)
+Tile::Tile(const Tile& other)
 {
     _rotation = other._rotation;
     _data.i_pattern[0] = other._data.i_pattern[0];
@@ -35,26 +35,26 @@ Cell::Cell(const Cell& other)
     _data.i_pattern[3] = other._data.i_pattern[3];
 }
 
-unsigned char Cell::getTop() const {
+unsigned char Tile::getTop() const {
     return _data.s_pattern[_rotation].top;
 }
 
-unsigned char Cell::getRight() const {
+unsigned char Tile::getRight() const {
     return _data.s_pattern[_rotation].right;
 }
 
-unsigned char Cell::getDown() const {
+unsigned char Tile::getDown() const {
     return _data.s_pattern[_rotation].down;
 }
 
-unsigned char Cell::getLeft() const {
+unsigned char Tile::getLeft() const {
     return _data.s_pattern[_rotation].left;
 }
 
-unsigned char Cell::getRotation() const {
+unsigned char Tile::getRotation() const {
     return _rotation;
 }
 
-void Cell::setRotation(unsigned char rotation) {
+void Tile::setRotation(unsigned char rotation) {
     _rotation = rotation % 4;
 }
