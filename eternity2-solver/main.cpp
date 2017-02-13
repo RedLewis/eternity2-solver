@@ -13,7 +13,7 @@ int main()
     Population pop(10000);
     while (pop.getBestBoard().getFitness() != Board::MAX_FITNESS)
     {
-        pop.generation();
+        pop.stepGeneration();
        if (lastBestFitness < pop.getBestBoard().getFitness())
        {
            std::cout << "Fitness:" << std::endl;

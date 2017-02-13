@@ -56,16 +56,17 @@ unsigned int Population::getAverageFitness()const
     return _averageFitness;
 }
 
-Board& Population::getBestBoard()const
+const Board& Population::getBestBoard()const
 {
     return *(*_pop.begin());
 }
 
-Board& Population::getWorstBoard()const
+const Board& Population::getWorstBoard()const
 {
     return *(*std::prev(_pop.end()));
 }
-void Population::generation()
+
+void Population::stepGeneration()
 {
     mutate();
     evaluate();

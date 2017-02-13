@@ -21,9 +21,11 @@ public:
     ~Population();
     unsigned int getGeneration()const;
     unsigned int getAverageFitness()const;
-    Board& getBestBoard()const;
-    Board& getWorstBoard()const;
-    void generation();
+    const Board& getBestBoard()const;
+    const Board& getWorstBoard()const;
+
+    void stepGeneration();
+
 private:
     void mutate();
     void evaluate();

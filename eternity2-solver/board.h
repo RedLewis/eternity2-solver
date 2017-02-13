@@ -28,8 +28,8 @@ public:
     Board();
     Board(const Board& other);
     ~Board();
-    int getFitness();
-    std::ostream& _stringify(std::ostream& os)const;
+    int getFitness() const;
+    std::ostream& _stringify(std::ostream& os) const;
     std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
     void rotateRegionMutation();
     void swapRegionMutation();

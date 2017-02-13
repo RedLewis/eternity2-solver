@@ -46,7 +46,7 @@ Board::~Board()
     }
 }
 
-int Board::getFitness()
+int Board::getFitness() const
 {
     return _fitness;
 }
