@@ -50,7 +50,7 @@ int Board::getFitness()
 std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, const Board& parentB)
 {
 
-    // Select a random region
+    // Select a random region (two points and a random width and height)
     unsigned char width = 1 + rand() % 16;
     unsigned char height = 1 + rand() % 16;
     Point<unsigned char> pointA(rand() % (16 - (width - 1)),
@@ -61,19 +61,35 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     //Clone the two parents
     std::pair<Board*, Board*> children(new Board(parentA), new Board(parentB));
 
-    //Remove from parent A all tiles that are inside the region in parent B
-    for (int y = pointB.y; y < (pointB.y + height); ++y) {
-        for (int x = pointB.x; x < (pointB.x + width); ++x) {
-            delete children.first->_tiles[y][x];
-            children.first->_tiles[y][x] = NULL;
+    //Remove from child A all tiles that are inside the region in parent B
+    for (int yB = pointB.y; yB < (pointB.y + height); ++yB) {
+        for (int xB = pointB.x; xB < (pointB.x + width); ++xB) {
+            bool removed = false;
+            for (int yA = 0; removed == false && yA < 16; ++yA) {
+                for (int xA = 0; removed == false && xA < 16; ++xA) {
+                    if (*(children.first->_tiles[yA][xA]) == *(parentB._tiles[yB][xB])) {
+                        delete children.first->_tiles[yA][xA];
+                        children.first->_tiles[yA][xA] = NULL;
+                        removed = true;
+                    }
+                }
+            }
         }
     }
 
-    //Remove from parent B all tiles that are inside the region in parent A
-    for (int y = pointA.y; y < (pointA.y + height); ++y) {
-        for (int x = pointA.x; x < (pointA.x + width); ++x) {
-            delete children.second->_tiles[y][x];
-            children.second->_tiles[y][x] = NULL;
+    //Remove from child B all tiles that are inside the region in parent A
+    for (int yA = pointA.y; yA < (pointA.y + height); ++yA) {
+        for (int xA = pointA.x; xA < (pointA.x + width); ++xA) {
+            bool removed = false;
+            for (int yB = 0; removed == false && yB < 16; ++yB) {
+                for (int xB = 0; removed == false && xB < 16; ++xB) {
+                    if (*(children.second->_tiles[yB][xB]) == *(parentA._tiles[yA][xA])) {
+                        delete children.second->_tiles[yB][xB];
+                        children.second->_tiles[yB][xB] = NULL;
+                        removed = true;
+                    }
+                }
+            }
         }
     }
 
@@ -81,20 +97,24 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     std::list<Tile*> listA;
     for (int y = pointA.y; y < (pointA.y + height); ++y) {
         for (int x = pointA.x; x < (pointA.x + width); ++x) {
-            listA.push_back(children.first->_tiles[y][x]);
-            children.first->_tiles[y][x] = NULL;
+            if (children.first->_tiles[y][x] != NULL) {
+                listA.push_back(children.first->_tiles[y][x]);
+                children.first->_tiles[y][x] = NULL;
+            }
         }
     }
     std::list<Tile*> listB;
     for (int y = pointB.y; y < (pointB.y + height); ++y) {
         for (int x = pointB.x; x < (pointB.x + width); ++x) {
-            listB.push_back(children.second->_tiles[y][x]);
-            children.second->_tiles[y][x] = NULL;
+            if (children.second->_tiles[y][x] != NULL) {
+                listB.push_back(children.second->_tiles[y][x]);
+                children.second->_tiles[y][x] = NULL;
+            }
         }
     }
 
-    //Copy to parent A’s region all tiles that in parent B’s region
-    //Copy to parent B’s region all tiles that in parent A’s region
+    //Copy to child A’s region all tiles that in parent B’s region
+    //Copy to child B’s region all tiles that in parent A’s region
     {
         Point<unsigned char> indexA(pointA);
         Point<unsigned char> indexB(pointB);
@@ -104,21 +124,40 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
             for (int x = 0; x < width; ++x) {
                 ++indexA.x;
                 ++indexB.x;
-                //Copy to parent A’s region all tiles that in parent B’s region
+                //Copy to child A’s region all tiles that in parent B’s region
                 assert(children.first->_tiles[indexA.y][indexA.x] == NULL);
-                assert(children.second->_tiles[indexB.y][indexB.x] != NULL);
-                children.first->_tiles[indexA.y][indexA.x] = new Tile(*(children.second->_tiles[indexB.y][indexB.x]));
-                //Copy to parent B’s region all tiles that in parent A’s region
+                children.first->_tiles[indexA.y][indexA.x] = new Tile(*(parentB._tiles[indexB.y][indexB.x]));
+                //Copy to child B’s region all tiles that in parent A’s region
                 assert(children.second->_tiles[indexB.y][indexB.x] == NULL);
-                assert(children.first->_tiles[indexA.y][indexA.x] != NULL);
-                children.second->_tiles[indexB.y][indexB.x] = new Tile(*(children.first->_tiles[indexA.y][indexA.x]));
+                children.second->_tiles[indexB.y][indexB.x] = new Tile(*(parentA._tiles[indexA.y][indexA.x]));
 
             }
         }
     }
 
-    //Fill the empty places in child A and child B using the tiles from list A and list B
+    //Fill the empty places in child A using the tiles from list A
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            if (children.first->_tiles[y][x] == NULL) {
+                assert(listA.size() > 0);
+                children.first->_tiles[y][x] = listA.front();
+                listA.pop_front();
+            }
+        }
+    }
+    assert(listA.size() == 0);
 
+    //Fill the empty places in child B using the tiles from list B
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            if (children.second->_tiles[y][x] == NULL) {
+                assert(listB.size() > 0);
+                children.second->_tiles[y][x] = listB.front();
+                listB.pop_front();
+            }
+        }
+    }
+    assert(listB.size() == 0);
 
     return children;
 }

@@ -37,6 +37,7 @@ public:
          unsigned char rotation);
     Tile(const Tile& other);
 
+    bool operator==(const Tile& other);
 
     unsigned char getTop() const;
     unsigned char getRight() const;
