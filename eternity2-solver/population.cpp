@@ -3,9 +3,9 @@
 Population::Population(): Population(100)
 {}
 
-Population::Population(int size): _pop(size)
+Population::Population(int size): _boards(size)
 {
-    std::generate(_pop.begin(), _pop.end(), [](){
+    std::generate(_boards.begin(), _boards.end(), [](){
         return new Board();
     });
     evaluate();
@@ -13,7 +13,7 @@ Population::Population(int size): _pop(size)
 
 Population::~Population()
 {
-    _pop.remove_if([](Board* b){
+    _boards.remove_if([](Board* b){
         delete b;
         return true;
     });
@@ -21,7 +21,7 @@ Population::~Population()
 
 void Population::mutate()
 {
-    for (auto individual : _pop)
+    for (auto individual : _boards)
     {
         if (individual != _best)
             individual->rotateRegionMutation();
@@ -29,21 +29,21 @@ void Population::mutate()
 }
 
 void Population::evaluate(){
-    for (auto individual : _pop)
+    for (auto individual : _boards)
     {
         individual->evaluate();
     }
-    _pop.sort([](Board*& first, Board*& second){
+    _boards.sort([](Board*& first, Board*& second){
         return first->getFitness() > second->getFitness();
     });
-    _best = *_pop.begin();
-    _worst = *_pop.end();
+    _best = *_boards.begin();
+    _worst = *_boards.end();
     _averageFitness = 0;
-    for (auto individual : _pop)
+    for (auto individual : _boards)
     {
         _averageFitness += individual->getFitness();
     }
-    _averageFitness /=_pop.size();
+    _averageFitness /=_boards.size();
 }
 
 unsigned int Population::getGeneration()const
@@ -58,12 +58,12 @@ unsigned int Population::getAverageFitness()const
 
 const Board& Population::getBestBoard()const
 {
-    return *(*_pop.begin());
+    return *(*_boards.begin());
 }
 
 const Board& Population::getWorstBoard()const
 {
-    return *(*std::prev(_pop.end()));
+    return *(*std::prev(_boards.end()));
 }
 
 void Population::stepGeneration()
