@@ -117,6 +117,8 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
         }
     }
 
+    //Fill the empty places in child A and child B using the tiles from list A and list B
+
 
     return children;
 }
