@@ -18,14 +18,14 @@ public:
     int getFitness();
     std::ostream& _stringify(std::ostream& os)const;
     std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
-    void rotateRegionMutation(int posX, int posY,int size);
-
+    void rotateRegionMutation();
+    void swapRegionMutation();
 protected:
     int evaluateFitness();
     void mutate();
 
 public:
-    void swapSquare(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);
+    void swapRectangle(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);
     void rotateSquare(int posX, int posY, int size);
 };
 

@@ -5,6 +5,9 @@
 #include <chrono>
 #include <iostream>
 #include <iomanip>
+#include <climits>
+#include <assert.h>
+
 Board::Board()
 {
     std::array<Cell*, 256 > tmp;
@@ -113,7 +116,7 @@ void Board::swapSquare(int posXa, int posYa,int posXb, int posYb, int sizeX, int
     }
 }
 */
-void Board::swapSquare(int posXa, int posYa,int posXb, int posYb, int sizeX, int sizeY)
+void Board::swapRectangle(int posXa, int posYa,int posXb, int posYb, int sizeX, int sizeY)
 {
     if ((posXa < 0 || posXa >= 16) ||
         (posYa < 0 || posYa >= 16) ||
@@ -128,6 +131,14 @@ void Board::swapSquare(int posXa, int posYa,int posXb, int posYb, int sizeX, int
         std::cerr << "mutation parameter invalid" << std::endl;
         return;
     }
+
+    if (((posXa <= posXb && posXa + sizeX >= posXb) && (posYa <= posYb && posYa + sizeY >= posXb)) ||
+            ((posXb <= posXa && posXb + sizeX >= posXa) && (posYb <= posYa && posYb + sizeY >= posXa)))
+    {
+        std::cerr << "rectangles overlap" << std::endl;
+        return;
+    }
+
     Cell *cpy[sizeY][sizeX] = {};
 
     for ( int i = 0; i < sizeY; ++i ) {
@@ -145,9 +156,34 @@ void Board::swapSquare(int posXa, int posYa,int posXb, int posYb, int sizeX, int
 
 }
 
-void Board::rotateRegionMutation(int posX, int posY,int size)
+void Board::rotateRegionMutation()
 {
-    rotateSquare(posX, posY, size);
+    int x = std::rand() % 16;
+    int y = std::rand() % 16;
+    //todo
+    int size = std::rand() % (16 - x);
+
+    rotateSquare(x, y, size);
+}
+
+void Board::swapRegionMutation()
+{
+    int xa;
+    int ya;
+    int xb;
+    int yb;
+    int sizeX = 0;
+    int sizeY = 0;
+    do{
+        xa = std::rand() % 16;
+        ya = std::rand() % 16;
+        xb = std::rand() % 16;
+        yb = std::rand() % 16;
+    }while (xa == ya && xb == yb);
+
+    sizeX = std::rand() % (std::abs(xa - xb));
+    sizeY = std::rand() %(std::abs(ya - yb));
+    swapRectangle(xa, ya, xb, yb, sizeX, sizeY);
 }
 
 
@@ -187,7 +223,6 @@ int Board::evaluateFitness()
                 _fitness += 1;
         }
     }
-
     return _fitness;
 }
 
