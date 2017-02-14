@@ -7,48 +7,25 @@
 #include "population.h"
 #include <chrono>
 #include <assert.h>
+#include <iomanip>
+
 int main()
 {
     //Board::unitTestSwap();;
-    /*
     srand(time(NULL));
-    int lastBestFitness = 0;
-    Population pop(10000);
-    while (pop.getBestBoard().getFitness() != Board::MAX_FITNESS)
+    Population population(100);
+    while (population.getBestBoard().getFitness() != Board::MAX_FITNESS)
     {
-        pop.stepGeneration();
-       if (lastBestFitness < pop.getBestBoard().getFitness())
-       {
-           std::cout << "Fitness:" << std::endl;
-           std::cout << "\tbest:" << pop.getBestBoard().getFitness() << std::endl;
-           std::cout << "\taverage:" << pop.getAverageFitness() << std::endl;
-           std::cout << "\tworst:" << pop.getWorstBoard().getFitness() << std::endl;
+        population.stepGeneration();
+        std::cout << std::setw(5) << std::left << "Gen:"
+                  << std::setw(12) << std::left << population.getGeneration()
+                  << std::setw(6) << std::left << "Best:"
+                  << std::setw(8) << std::left << population.getBestBoard().getFitness()
+                  << std::setw(5) << std::left << "Avg:"
+                  << std::setw(8) << std::left << population.getAverageFitness()
+                  << std::setw(7) << std::left << "Worst:"
+                  << std::setw(8) << std::left << population.getWorstBoard().getFitness()
+                  << std::endl;
 
-           lastBestFitness = pop.getBestBoard().getFitness();
-            std::cout << pop.getBestBoard() << std::endl;
-       }
     }
-    */
-
-    //*
-    Board parentA;
-    Board parentB;
-    std::pair<Board*, Board*> children;
-
-    std::cout << parentA << std::endl;
-    std::cout << parentB << std::endl;
-
-    children = Board::regionExchangeCrossover(parentA, parentB);
-
-    std::cout << *children.first << std::endl;
-    std::cout << *children.second << std::endl;
-
-    assert(parentA.isValid());
-    assert(parentB.isValid());
-    assert(children.first->isValid());
-    assert(children.second->isValid());
-
-    delete children.first;
-    delete children.second;
-    //*/
 }

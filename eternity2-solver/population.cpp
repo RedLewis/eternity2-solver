@@ -1,7 +1,5 @@
 #include "population.h"
 #include <iostream>
-Population::Population(): Population(100)
-{}
 
 Population::Population(int size): _boards(size)
 {
@@ -31,20 +29,18 @@ void Population::mutate()
 }
 
 void Population::evaluate(){
-    for (auto individual : _boards)
-    {
-        individual->evaluate();
-    }
+    for (auto board : _boards)
+        board->evaluate();
+
     _boards.sort([](Board*& first, Board*& second){
         return first->getFitness() > second->getFitness();
     });
     _best = *_boards.begin();
     _worst = *_boards.end();
+
     _averageFitness = 0;
-    for (auto individual : _boards)
-    {
-        _averageFitness += individual->getFitness();
-    }
+    for (auto board : _boards)
+        _averageFitness += board->getFitness();
     _averageFitness /=_boards.size();
 }
 
@@ -72,4 +68,5 @@ void Population::stepGeneration()
 {
     mutate();
     evaluate();
+    _generation += 1;
 }

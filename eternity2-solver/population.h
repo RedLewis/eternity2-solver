@@ -8,16 +8,15 @@
 class Population
 {
     std::list<Board*> _boards;
-    unsigned int _generation;
-    unsigned int _mutationRate;
-    unsigned int _mutationPotency;
+    unsigned int _generation = 1;
+    float _mutationRate;
+    float _mutationPotency;
 
-    Board*  _best;
-    Board*  _worst;
-    unsigned int _averageFitness;
+    Board* _best;
+    Board* _worst;
+    float _averageFitness;
 public:
-    Population();
-    Population(int size);
+    Population(int size = 100);
     ~Population();
     unsigned int getGeneration()const;
     unsigned int getAverageFitness()const;
