@@ -26,6 +26,7 @@ Board::Board()
             _tiles[y][x] = tmp[index++];
         }
     }
+
     evaluate();
 }
 
@@ -55,12 +56,17 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
 {
 
     // Select a random region (two points and a random width and height)
-    unsigned char width = 1 + rand() % 16;
-    unsigned char height = 1 + rand() % 16;
-    Point<unsigned char> pointA(rand() % (16 - (width - 1)),
+    /*const unsigned char width = 1 + rand() % 16;
+    const unsigned char height = 1 + rand() % 16;
+    const Point<unsigned char> pointA(rand() % (16 - (width - 1)),
                                 rand() % (16 - (height - 1)));
-    Point<unsigned char> pointB(rand() % (16 - (width - 1)),
-                                rand() % (16 - (height - 1)));
+    const Point<unsigned char> pointB(rand() % (16 - (width - 1)),
+                                rand() % (16 - (height - 1)));*/
+
+    const unsigned char width = 2;
+    const unsigned char height = 2;
+    const Point<unsigned char> pointA(0, 0);
+    const Point<unsigned char> pointB(0, 0);
 
     //Clone the two parents
     std::pair<Board*, Board*> children(new Board(parentA), new Board(parentB));
@@ -69,9 +75,10 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     for (int yB = pointB.y; yB < (pointB.y + height); ++yB) {
         for (int xB = pointB.x; xB < (pointB.x + width); ++xB) {
             bool removed = false;
-            for (int yA = 0; removed == false && yA < 16; ++yA) {
-                for (int xA = 0; removed == false && xA < 16; ++xA) {
-                    if (*(children.first->_tiles[yA][xA]) == *(parentB._tiles[yB][xB])) {
+            for (int yA = 0; removed == false && (yA < 16); ++yA) {
+                for (int xA = 0; removed == false && (xA < 16); ++xA) {
+                    if (children.first->_tiles[yA][xA] != NULL
+                        && (*(children.first->_tiles[yA][xA]) == *(parentB._tiles[yB][xB]))) {
                         delete children.first->_tiles[yA][xA];
                         children.first->_tiles[yA][xA] = NULL;
                         removed = true;
@@ -85,9 +92,10 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     for (int yA = pointA.y; yA < (pointA.y + height); ++yA) {
         for (int xA = pointA.x; xA < (pointA.x + width); ++xA) {
             bool removed = false;
-            for (int yB = 0; removed == false && yB < 16; ++yB) {
-                for (int xB = 0; removed == false && xB < 16; ++xB) {
-                    if (*(children.second->_tiles[yB][xB]) == *(parentA._tiles[yA][xA])) {
+            for (int yB = 0; removed == false && (yB < 16); ++yB) {
+                for (int xB = 0; removed == false && (xB < 16); ++xB) {
+                    if (children.second->_tiles[yB][xB] != NULL
+                        && (*(children.second->_tiles[yB][xB]) == *(parentA._tiles[yA][xA]))) {
                         delete children.second->_tiles[yB][xB];
                         children.second->_tiles[yB][xB] = NULL;
                         removed = true;
@@ -98,6 +106,8 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     }
 
     //Add the tiles remaining in both regions to two separate lists: list A and list B
+
+    //Add the tiles remaining in child A's region to list A
     std::list<Tile*> listA;
     for (int y = pointA.y; y < (pointA.y + height); ++y) {
         for (int x = pointA.x; x < (pointA.x + width); ++x) {
@@ -107,6 +117,8 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
             }
         }
     }
+
+    //Add the tiles remaining in child B's region to list B
     std::list<Tile*> listB;
     for (int y = pointB.y; y < (pointB.y + height); ++y) {
         for (int x = pointB.x; x < (pointB.x + width); ++x) {
@@ -120,26 +132,25 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     //Copy to child A’s region all tiles that in parent B’s region
     //Copy to child B’s region all tiles that in parent A’s region
     {
-        Point<unsigned char> indexA(pointA);
-        Point<unsigned char> indexB(pointB);
+        Point<unsigned char> indexA;
+        Point<unsigned char> indexB;
         for (int y = 0; y < height; ++y) {
-            ++indexA.y;
-            ++indexB.y;
+            indexA.y = pointA.y + y;
+            indexB.y = pointB.y + y;
             for (int x = 0; x < width; ++x) {
-                ++indexA.x;
-                ++indexB.x;
+                indexA.x = pointA.x + x;
+                indexB.x = pointB.x + x;
                 //Copy to child A’s region all tiles that in parent B’s region
                 assert(children.first->_tiles[indexA.y][indexA.x] == NULL);
                 children.first->_tiles[indexA.y][indexA.x] = new Tile(*(parentB._tiles[indexB.y][indexB.x]));
                 //Copy to child B’s region all tiles that in parent A’s region
                 assert(children.second->_tiles[indexB.y][indexB.x] == NULL);
                 children.second->_tiles[indexB.y][indexB.x] = new Tile(*(parentA._tiles[indexA.y][indexA.x]));
-
             }
         }
     }
 
-    //Fill the empty places in child A using the tiles from list A
+    //Fill the empty places in child A with the tiles from list A
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             if (children.first->_tiles[y][x] == NULL) {
@@ -151,7 +162,7 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     }
     assert(listA.size() == 0);
 
-    //Fill the empty places in child B using the tiles from list B
+    //Fill the empty places in child B with the tiles from list B
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             if (children.second->_tiles[y][x] == NULL) {
@@ -163,6 +174,8 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     }
     assert(listB.size() == 0);
 
+    children.first->evaluate();
+    children.second->evaluate();
     return children;
 }
 
@@ -345,6 +358,21 @@ int Board::evaluate()
     return _fitness;
 }
 
+bool Board::checkIntegrity() {
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            //check if _tiles[y][x] is unique
+            for (int yp = 0; yp < 16; ++yp) {
+                for (int xp = 0; xp < 16; ++xp) {
+                    if (yp != y && xp != x && _tiles[y][x] == _tiles[yp][xp])
+                        return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 std::ostream& Board::_stringify(std::ostream& os)const
 {
     int cellLine = 0;
@@ -388,6 +416,11 @@ std::ostream& Board::_stringify(std::ostream& os)const
                     grn = grn_b;
                 }
                 //os << "  ";
+                if (_tiles[boardLine][boardRaw] == NULL){
+                    os << "\e[41m";
+                    os << "  " << "  " << "  ";
+                    os << rst;
+                }else{
                 if (cellLine == 0){
                     os << bgr << "  ";
                     if (_tiles[boardLine][boardRaw]->getTop() == 0){
@@ -398,7 +431,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
                             os << blu;
                         }
                     }else{
-                        if (boardLine != 0 && _tiles[boardLine][boardRaw]->getTop() == _tiles[boardLine - 1][boardRaw]->getDown()){
+                        if (_tiles[boardLine - 1][boardRaw] != NULL && boardLine != 0 && _tiles[boardLine][boardRaw]->getTop() == _tiles[boardLine - 1][boardRaw]->getDown()){
                             os << grn;
                         }else{
                             os << red;
@@ -415,7 +448,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
                             os << blu;
                         }
                     }else{
-                        if (boardRaw != 0 && _tiles[boardLine][boardRaw]->getLeft() == _tiles[boardLine][boardRaw - 1]->getRight()){
+                        if (_tiles[boardLine][boardRaw - 1] != NULL && boardRaw != 0 && _tiles[boardLine][boardRaw]->getLeft() == _tiles[boardLine][boardRaw - 1]->getRight()){
                             os << grn;
                         }else{
                             os << red;
@@ -431,7 +464,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
                             os << blu;
                         }
                     }else{
-                        if (boardRaw < 15 && _tiles[boardLine][boardRaw]->getRight() == _tiles[boardLine][boardRaw + 1]->getLeft()){
+                        if (_tiles[boardLine][boardRaw + 1] != NULL && boardRaw < 15 && _tiles[boardLine][boardRaw]->getRight() == _tiles[boardLine][boardRaw + 1]->getLeft()){
                             os << grn;
                         }else{
                             os << red;
@@ -448,7 +481,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
                         }
                     }else{
 
-                        if (boardLine < 15 && _tiles[boardLine][boardRaw]->getDown() == _tiles[boardLine + 1][boardRaw]->getTop()){
+                        if (_tiles[boardLine + 1][boardRaw] != NULL && boardLine < 15 && _tiles[boardLine][boardRaw]->getDown() == _tiles[boardLine + 1][boardRaw]->getTop()){
                             os << grn;
                         }else{
                             os << red;
@@ -456,6 +489,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
                    }
                    os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw]->getDown();
                    os << bgr <<"  ";
+                }
                 }
                 os << rst;
                 ++boardRaw;

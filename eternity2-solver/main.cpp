@@ -8,7 +8,7 @@
 #include <chrono>
 int main()
 {
-    srand(time(NULL));
+    /*srand(time(NULL));
     int lastBestFitness = 0;
     Population pop(10000);
     while (pop.getBestBoard().getFitness() != Board::MAX_FITNESS)
@@ -24,5 +24,20 @@ int main()
            lastBestFitness = pop.getBestBoard().getFitness();
             std::cout << pop.getBestBoard() << std::endl;
        }
-    }
+    }*/
+
+    Board parentA;
+    Board parentB;
+    std::pair<Board*, Board*> children;
+
+    std::cout << parentA << std::endl;
+    std::cout << parentB << std::endl;
+
+    children = Board::regionExchangeCrossover(parentA, parentB);
+
+    std::cout << *children.first << std::endl;
+    std::cout << *children.second << std::endl;
+
+    delete children.first;
+    delete children.second;
 }
