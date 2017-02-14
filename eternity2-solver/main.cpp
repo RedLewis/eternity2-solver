@@ -12,8 +12,10 @@
 int main()
 {
     //Board::unitTestSwap();;
+    int oldBest = 0;
+
     srand(time(NULL));
-    Population population(1000);
+    Population population(10);
     while (population.getBestBoard().getFitness() != Board::MAX_FITNESS)
     {
 
@@ -27,6 +29,9 @@ int main()
                   << std::setw(7) << std::left << "Worst:"
                   << std::setw(8) << std::left << population.getWorstBoard().getFitness()
                   << std::endl;
-
+        if (oldBest < population.getBestBoard().getFitness()){
+            oldBest = population.getBestBoard().getFitness();
+            std::cerr << population.getBestBoard() << std::endl;
+        }
     }
 }

@@ -341,9 +341,11 @@ void Board::swapRegionMutation()
         xb = std::rand() % 16;
         yb = std::rand() % 16;
     }while (xa == xb && ya == yb);
+    int maxSizeX = std::min(std::max(1, std::abs(xa - xb)), 16 - std::max(xa, xb));
+    int maxSizeY = std::min(std::max(1, std::abs(ya - yb)), 16 - std::max(ya, yb));
 
-    sizeX = 1;
-    sizeY = 1;
+    sizeX = 1 + (std::rand() % maxSizeX);
+    sizeY = 1 + (std::rand() % maxSizeY);
 
     if (swapRectangle(xa, ya, xb, yb, sizeX, sizeY) ==false)
         exit(0);
@@ -595,6 +597,7 @@ void Board::unitTestSwap()
     assert(tmp.swapRectangle(1,0,0,0,2,1) == false);
     // random
     assert(tmp.swapRectangle(8,12,9,13,1,1) == true);
+    assert(tmp.swapRectangle(4,7,1,4,11,6) == false);
     //*/
 
 }
