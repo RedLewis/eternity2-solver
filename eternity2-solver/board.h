@@ -40,6 +40,7 @@ public:
 public:
     bool swapRectangle(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);
     bool rotateSquare(int posX, int posY, int size);
+    static void unitTestSwap();
 };
 
 std::ostream& operator<<(std::ostream& os, const Board& other);

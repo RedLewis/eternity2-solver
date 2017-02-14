@@ -545,3 +545,56 @@ std::ostream& operator<<(std::ostream& os, const Board& other)
 {
     return other._stringify(os);
 }
+
+void Board::unitTestSwap()
+{
+    ///*
+    Board tmp;
+    //wrong position
+    assert(tmp.swapRectangle(-1,0,0,0,0,0) == false);
+    assert(tmp.swapRectangle(0,-1,0,0,0,0) == false);
+    assert(tmp.swapRectangle(0,0,-1,0,0,0) == false);
+    assert(tmp.swapRectangle(0,0,0,-1,0,0) == false);
+    //wrong size + overlap
+    assert(tmp.swapRectangle(0,0,0,0,0,0) == false);
+    assert(tmp.swapRectangle(0,0,0,0,0,1) == false);
+    assert(tmp.swapRectangle(0,0,0,0,1,0) == false);
+    //rectangle same pos
+    assert(tmp.swapRectangle(0,0,0,0,1,1) == false);
+
+    //should work [easy]
+    assert(tmp.swapRectangle(1,0,0,0,1,1) == true);
+    assert(tmp.swapRectangle(0,1,0,0,1,1) == true);
+    assert(tmp.swapRectangle(0,0,1,0,1,1) == true);
+    assert(tmp.swapRectangle(0,0,0,1,1,1) == true);
+    assert(tmp.swapRectangle(0,0,1,1,1,1) == true);
+    assert(tmp.swapRectangle(1,1,0,0,1,1) == true);
+
+    // around One test
+    assert(tmp.swapRectangle(1,1,0,0,1,1) == true);
+    assert(tmp.swapRectangle(1,1,0,1,1,1) == true);
+    assert(tmp.swapRectangle(1,1,0,2,1,1) == true);
+
+    assert(tmp.swapRectangle(1,1,1,0,1,1) == true);
+    assert(tmp.swapRectangle(1,1,1,1,1,1) == false);
+    assert(tmp.swapRectangle(1,1,1,2,1,1) == true);
+
+    assert(tmp.swapRectangle(1,1,2,0,1,1) == true);
+    assert(tmp.swapRectangle(1,1,2,1,1,1) == true);
+    assert(tmp.swapRectangle(1,1,2,2,1,1) == true);
+    //should overlap [medium]
+    // sqr shape
+    assert(tmp.swapRectangle(0,0,0,1,2,2) == false);
+    assert(tmp.swapRectangle(0,0,1,0,2,2) == false);
+    assert(tmp.swapRectangle(0,1,0,0,2,2) == false);
+    assert(tmp.swapRectangle(1,0,0,0,2,2) == false);
+    // rect shape
+    assert(tmp.swapRectangle(0,0,0,1,1,2) == false);
+    assert(tmp.swapRectangle(0,0,1,0,2,1) == false);
+    assert(tmp.swapRectangle(0,1,0,0,1,2) == false);
+    assert(tmp.swapRectangle(1,0,0,0,2,1) == false);
+    // random
+    assert(tmp.swapRectangle(8,12,9,13,1,1) == true);
+    //*/
+
+}
