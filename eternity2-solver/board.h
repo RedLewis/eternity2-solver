@@ -35,7 +35,7 @@ public:
     void swapRegionMutation();
     int evaluate();
 
-    bool checkIntegrity();
+    bool isValid();
 
 public:
     bool swapRectangle(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);

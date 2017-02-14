@@ -9,8 +9,8 @@
 #include <assert.h>
 int main()
 {
-    /*srand(time(NULL));
-    ///*
+    //srand(time(NULL));
+    /*
     Board tmp;
     //wrong size + overlap
     assert(tmp.swapRectangle(0,0,0,0,0,0) == false);
@@ -51,7 +51,7 @@ int main()
     assert(tmp.swapRectangle(1,0,0,0,2,1) == false);
     // random
     assert(tmp.swapRectangle(8,12,9,13,1,1) == true);
-    //*/
+    */
 
     /*
     srand(time(NULL));
@@ -71,7 +71,7 @@ int main()
             std::cout << pop.getBestBoard() << std::endl;
        }
     }
-    //*/
+    */
 
     //*
     Board parentA;
@@ -85,6 +85,11 @@ int main()
 
     std::cout << *children.first << std::endl;
     std::cout << *children.second << std::endl;
+
+    assert(parentA.isValid());
+    assert(parentB.isValid());
+    assert(children.first->isValid());
+    assert(children.second->isValid());
 
     delete children.first;
     delete children.second;

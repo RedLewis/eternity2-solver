@@ -394,14 +394,20 @@ int Board::evaluate()
     return _fitness;
 }
 
-bool Board::checkIntegrity() {
+bool Board::isValid() {
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             //check if _tiles[y][x] is unique
+            if (_tiles[y][x] == NULL)
+                return false;
             for (int yp = 0; yp < 16; ++yp) {
                 for (int xp = 0; xp < 16; ++xp) {
-                    if (yp != y && xp != x && _tiles[y][x] == _tiles[yp][xp])
-                        return false;
+                    if (yp != y && xp != x) {
+                        if (_tiles[yp][xp] == NULL)
+                            return false;
+                        if (*(_tiles[y][x]) == *(_tiles[yp][xp]))
+                            return false;
+                    }
                 }
             }
         }
