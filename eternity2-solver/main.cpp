@@ -13,9 +13,10 @@ int main()
 {
     //Board::unitTestSwap();;
     srand(time(NULL));
-    Population population(100);
+    Population population(1000);
     while (population.getBestBoard().getFitness() != Board::MAX_FITNESS)
     {
+
         population.stepGeneration();
         std::cout << std::setw(5) << std::left << "Gen:"
                   << std::setw(12) << std::left << population.getGeneration()

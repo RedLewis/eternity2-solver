@@ -17,6 +17,33 @@ Population::~Population()
     });
 }
 
+void Population::crossover()
+{
+    std::list<Board*> newBoards;
+    newBoards.push_back(_boards.front());
+
+    auto parentItA = _boards.begin();
+    auto parentItB = std::next(_boards.begin());
+
+    std::pair<Board*, Board*> children;
+
+    while (newBoards.size() < _boards.size())
+    {
+        children = Board::regionExchangeCrossover(**parentItA, **parentItB);
+        newBoards.push_back(children.first);
+        if (newBoards.size() < _boards.size()) {
+            newBoards.push_back(children.second);
+        }
+        ++parentItA;
+        ++parentItB;
+    }
+    for(auto it = std::next(_boards.begin()); it != _boards.end(); ++it) {
+        delete *it;
+    }
+    _boards.clear();
+    _boards = std::move(newBoards);
+}
+
 void Population::mutate()
 {
     for (Board* individual : _boards)
@@ -66,6 +93,7 @@ const Board& Population::getWorstBoard()const
 
 void Population::stepGeneration()
 {
+    crossover();
     mutate();
     evaluate();
     _generation += 1;

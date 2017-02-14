@@ -26,6 +26,7 @@ public:
     void stepGeneration();
 
 private:
+    void crossover();
     void mutate();
     void evaluate();
 private:
