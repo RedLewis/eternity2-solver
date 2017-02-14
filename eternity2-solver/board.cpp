@@ -56,17 +56,12 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
 {
 
     // Select a random region (two points and a random width and height)
-    /*const unsigned char width = 1 + rand() % 16;
+    const unsigned char width = 1 + rand() % 16;
     const unsigned char height = 1 + rand() % 16;
     const Point<unsigned char> pointA(rand() % (16 - (width - 1)),
                                 rand() % (16 - (height - 1)));
     const Point<unsigned char> pointB(rand() % (16 - (width - 1)),
-                                rand() % (16 - (height - 1)));*/
-
-    const unsigned char width = 2;
-    const unsigned char height = 2;
-    const Point<unsigned char> pointA(0, 0);
-    const Point<unsigned char> pointB(0, 0);
+                                rand() % (16 - (height - 1)));
 
     //Clone the two parents
     std::pair<Board*, Board*> children(new Board(parentA), new Board(parentB));

@@ -9,7 +9,7 @@
 #include <assert.h>
 int main()
 {
-    //srand(time(NULL));
+    srand(time(NULL));
     /*
     Board tmp;
     //wrong size + overlap
