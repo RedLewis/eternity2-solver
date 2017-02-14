@@ -9,8 +9,9 @@
 #include <assert.h>
 int main()
 {
-    Board::unitTestSwap();;
-    ///*
+    //Board::unitTestSwap();;
+
+    /*
     srand(time(NULL));
     int lastBestFitness = 0;
     Population pop(10000);
@@ -28,5 +29,27 @@ int main()
             std::cout << pop.getBestBoard() << std::endl;
        }
     }
+    */
+
+    //*
+    Board parentA;
+    Board parentB;
+    std::pair<Board*, Board*> children;
+
+    std::cout << parentA << std::endl;
+    std::cout << parentB << std::endl;
+
+    children = Board::regionExchangeCrossover(parentA, parentB);
+
+    std::cout << *children.first << std::endl;
+    std::cout << *children.second << std::endl;
+
+    assert(parentA.isValid());
+    assert(parentB.isValid());
+    assert(children.first->isValid());
+    assert(children.second->isValid());
+
+    delete children.first;
+    delete children.second;
     //*/
 }

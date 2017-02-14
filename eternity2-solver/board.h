@@ -30,10 +30,12 @@ public:
     ~Board();
     int getFitness() const;
     std::ostream& _stringify(std::ostream& os) const;
-    std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
+    static std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
     void rotateRegionMutation();
     void swapRegionMutation();
     int evaluate();
+
+    bool isValid();
 
 public:
     bool swapRectangle(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);
