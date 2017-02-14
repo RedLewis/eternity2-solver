@@ -6,8 +6,53 @@
 #include <algorithm>
 #include "population.h"
 #include <chrono>
+#include <assert.h>
 int main()
 {
+    ///*
+    Board tmp;
+    //wrong size + overlap
+    assert(tmp.swapRectangle(0,0,0,0,0,0) == false);
+    assert(tmp.swapRectangle(0,0,0,0,0,1) == false);
+    assert(tmp.swapRectangle(0,0,0,0,1,0) == false);
+    //rectangle same pos
+    assert(tmp.swapRectangle(0,0,0,0,1,1) == false);
+
+    //should work [easy]
+    assert(tmp.swapRectangle(1,0,0,0,1,1) == true);
+    assert(tmp.swapRectangle(0,1,0,0,1,1) == true);
+    assert(tmp.swapRectangle(0,0,1,0,1,1) == true);
+    assert(tmp.swapRectangle(0,0,0,1,1,1) == true);
+    assert(tmp.swapRectangle(0,0,1,1,1,1) == true);
+    assert(tmp.swapRectangle(1,1,0,0,1,1) == true);
+
+    assert(tmp.swapRectangle(1,1,0,0,1,1) == true);
+    assert(tmp.swapRectangle(1,1,0,1,1,1) == true);
+    assert(tmp.swapRectangle(1,1,0,2,1,1) == true);
+
+    assert(tmp.swapRectangle(1,1,1,0,1,1) == true);
+    assert(tmp.swapRectangle(1,1,1,1,1,1) == false);
+    assert(tmp.swapRectangle(1,1,1,2,1,1) == true);
+
+    assert(tmp.swapRectangle(1,1,2,0,1,1) == true);
+    assert(tmp.swapRectangle(1,1,2,1,1,1) == true);
+    assert(tmp.swapRectangle(1,1,2,2,1,1) == true);
+    //should overlap [medium]
+    // sqr shape
+    assert(tmp.swapRectangle(0,0,0,1,2,2) == false);
+    assert(tmp.swapRectangle(0,0,1,0,2,2) == false);
+    assert(tmp.swapRectangle(0,1,0,0,2,2) == false);
+    assert(tmp.swapRectangle(1,0,0,0,2,2) == false);
+    // rect shape
+    assert(tmp.swapRectangle(0,0,0,1,1,2) == false);
+    assert(tmp.swapRectangle(0,0,1,0,2,1) == false);
+    assert(tmp.swapRectangle(0,1,0,0,1,2) == false);
+    assert(tmp.swapRectangle(1,0,0,0,2,1) == false);
+    // random
+    assert(tmp.swapRectangle(8,12,9,13,1,1) == true);
+    //*/
+
+    ///*
     srand(time(NULL));
     int lastBestFitness = 0;
     Population pop(10000);
@@ -25,4 +70,5 @@ int main()
             std::cout << pop.getBestBoard() << std::endl;
        }
     }
+    //*/
 }

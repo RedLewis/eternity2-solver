@@ -166,15 +166,15 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     return children;
 }
 
-void Board::rotateSquare(int posX, int posY,int size)
+bool Board::rotateSquare(int posX, int posY,int size)
 {
     if ((posX < 0 || posX >= 16) ||
         (posY < 0 || posY >= 16) ||
         (size < 0 || size > 16) ||
         (posX + size > 16) ||
         (posY + size > 16)){
-        std::cerr << "mutation parameter invalid" << std::endl;
-        return;
+        std::cerr << "rotate mutation parameter invalid" << std::endl;
+        return false;
     }
 
     for ( int i = 0; i < size; ++i ) {
@@ -198,6 +198,7 @@ void Board::rotateSquare(int posX, int posY,int size)
         _tiles[posY + i][posY + (size-1-j)] = tmp;
       }
     }
+    return true;
 }
 /*
 // ne gere pas les overlap
@@ -231,27 +232,60 @@ void Board::swapSquare(int posXa, int posYa,int posXb, int posYb, int sizeX, int
     }
 }
 */
-void Board::swapRectangle(int posXa, int posYa,int posXb, int posYb, int sizeX, int sizeY)
+bool Board::swapRectangle(int posXa, int posYa,int posXb, int posYb, int sizeX, int sizeY)
 {
     if ((posXa < 0 || posXa >= 16) ||
         (posYa < 0 || posYa >= 16) ||
         (posXb < 0 || posXb >= 16) ||
-        (posYb < 0 || posYb >= 16) ||
-        (sizeX < 0 || sizeX > 16) ||
-        (sizeY < 0 || sizeY > 16) ||
-        (posXa + sizeX > 16) ||
+        (posYb < 0 || posYb >= 16))
+    {
+        std::cerr << "pX:" << posXa << " pY:" << posYa << std::endl;
+        std::cerr << "pX:" << posXb << " pY:" << posYb << std::endl;
+        std::cerr << "sX:" << sizeX << " sY:" << sizeY << std::endl;
+        std::cerr << "a point is not in the board" << std::endl;
+        return false;
+    }
+    if ((sizeX < 1 || sizeX > 16) ||
+        (sizeY < 1 || sizeY > 16))
+    {
+        std::cerr << "pX:" << posXa << " pY:" << posYa << std::endl;
+        std::cerr << "pX:" << posXb << " pY:" << posYb << std::endl;
+        std::cerr << "sX:" << sizeX << " sY:" << sizeY << std::endl;
+        std::cerr << "size is invalid" << std::endl;
+        return false;
+    }
+    if((posXa + sizeX > 16) ||
         (posYa + sizeY > 16) ||
         (posXb + sizeX > 16) ||
         (posYb + sizeY > 16)){
-        std::cerr << "mutation parameter invalid" << std::endl;
-        return;
+        std::cerr << "pX:" << posXa << " pY:" << posYa << std::endl;
+        std::cerr << "pX:" << posXb << " pY:" << posYb << std::endl;
+        std::cerr << "sX:" << sizeX << " sY:" << sizeY << std::endl;
+        std::cerr << "swap mutation parameter invalid" << std::endl;
+        return false;
+    }
+    if (posXa == posXb && posYa == posYb)
+    {
+        std::cerr << "pX:" << posXa << " pY:" << posYa << std::endl;
+        std::cerr << "pX:" << posXb << " pY:" << posYb << std::endl;
+        std::cerr << "sX:" << sizeX << " sY:" << sizeY << std::endl;
+        std::cerr << "rectangles same pos overlap" << std::endl;
+        return false;
     }
 
-    if (((posXa <= posXb && posXa + sizeX >= posXb) && (posYa <= posYb && posYa + sizeY >= posXb)) ||
-            ((posXb <= posXa && posXb + sizeX >= posXa) && (posYb <= posYa && posYb + sizeY >= posXa)))
+    if (
+            ((posXa < posXb && posXa + sizeX > posXb) && (posYa < posYb && posYa + sizeY >= posYb)) ||
+            ((posXa < posXb + sizeX && posXa + sizeX >= posXb + sizeX) && (posYa < posYb + sizeY && posYa + sizeY >= posYb + sizeY)) ||
+            ((posXb < posXa && posXb + sizeX > posXa) && (posYb < posYa && posYb + sizeY >= posYa)) ||
+            ((posXb < posXa + sizeX && posXb + sizeX >= posXa + sizeX) && (posYb < posYa + sizeY && posYb + sizeY >= posYa + sizeY))
+)
     {
+        std::cerr << "pX:" << posXa << " pY:" << posYa << std::endl;
+        std::cerr << "pX:" << posXb << " pY:" << posYb << std::endl;
+        std::cerr << "sX:" << sizeX << " sY:" << sizeY << std::endl;
+
         std::cerr << "rectangles overlap" << std::endl;
-        return;
+        return false;
     }
 
 
@@ -269,7 +303,7 @@ void Board::swapRectangle(int posXa, int posYa,int posXb, int posYb, int sizeX, 
           _tiles[posYb + i][posXb + j] = cpy[i][j];
         }
     }
-
+    return true;
 }
 
 void Board::rotateRegionMutation()
@@ -298,11 +332,13 @@ void Board::swapRegionMutation()
         ya = std::rand() % 16;
         xb = std::rand() % 16;
         yb = std::rand() % 16;
-    }while (xa == ya && xb == yb);
+    }while (xa == xb && ya == yb);
 
-    sizeX = std::rand() % (std::abs(xa - xb));
-    sizeY = std::rand() %(std::abs(ya - yb));
-    swapRectangle(xa, ya, xb, yb, sizeX, sizeY);
+    sizeX = 1;
+    sizeY = 1;
+
+    if (swapRectangle(xa, ya, xb, yb, sizeX, sizeY) ==false)
+        exit(0);
 }
 
 
@@ -472,6 +508,5 @@ std::ostream& Board::_stringify(std::ostream& os)const
 
 std::ostream& operator<<(std::ostream& os, const Board& other)
 {
-
     return other._stringify(os);
 }

@@ -21,10 +21,12 @@ Population::~Population()
 
 void Population::mutate()
 {
-    for (auto individual : _boards)
+    for (Board* individual : _boards)
     {
-        if (individual != _best)
+        if (individual != _best){
             individual->rotateRegionMutation();
+            individual->swapRegionMutation();
+        }
     }
 }
 
