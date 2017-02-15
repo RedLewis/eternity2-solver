@@ -28,13 +28,43 @@ Board::Board()
         edges += (E2TILES[i][1] == Tile::EDGE_VALUE) ? 1 : 0;
         edges += (E2TILES[i][2] == Tile::EDGE_VALUE) ? 1 : 0;
         edges += (E2TILES[i][3] == Tile::EDGE_VALUE) ? 1 : 0;
+
+        // Add corner tile to array
         if (edges == 2) {
-            corners[cornersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], 0);
-        } else if (edges == 1) {
-            borders[bordersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], 0);
-        } else {
+            // Set first edge to top and second edge to right
+            if (E2TILES[i][0] == 0 && E2TILES[i][1] == 0)
+                corners[cornersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], 0);
+            else if (E2TILES[i][1] == 0 && E2TILES[i][2] == 0)
+                corners[cornersIndex++] = new Tile(E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], 0);
+            else if (E2TILES[i][2] == 0 && E2TILES[i][3] == 0)
+                corners[cornersIndex++] = new Tile(E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], 0);
+            else if (E2TILES[i][3] == 0 && E2TILES[i][0] == 0)
+                corners[cornersIndex++] = new Tile(E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], 0);
+            else
+                std::cerr << "cannot add tile to board: invalid corner tile" << std::endl;
+        }
+
+        // Add border tile to array
+        else if (edges == 1) {
+            // Set edge to top
+            if (E2TILES[i][0] == 0)
+                borders[bordersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], 0);
+            else if (E2TILES[i][1] == 0)
+                corners[cornersIndex++] = new Tile(E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], 0);
+            else if (E2TILES[i][2] == 0)
+                corners[cornersIndex++] = new Tile(E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], 0);
+            else if (E2TILES[i][3] == 0)
+                corners[cornersIndex++] = new Tile(E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], 0);
+            else
+                std::cerr << "cannot add tile to board: invalid edge tile" << std::endl;
+        }
+
+        // Add inner tile to array
+        else if (edges == 0) {
             inners[innersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], rand() % 4);
         }
+        else
+            std::cerr << "cannot add tile to board: invalid tile" << std::endl;
     }
 
     // Shuffles tile arrays
@@ -50,25 +80,28 @@ Board::Board()
         for (int x = 0; x < 16; ++x) {
 
             // Place corner tile
-            if ((x == 0 && y == 0) || (x == 0 && y == 15) || (x == 15 && y == 0) || (x == 15 && y == 15)){
-                //set en dure des direction pour que les bords soit au bords ...
-                if (x == 0 && y == 0)
-                    ((Tile*) corners[cornersIndex])->setRotation(2);
+            if ((x == 0 && y == 0) || (x == 0 && y == 15) || (x == 15 && y == 0) || (x == 15 && y == 15)) {
                 if (x == 15 && y == 0)
-                    ((Tile*) corners[cornersIndex])->setRotation(3);
+                    corners[cornersIndex]->setRotation(0);
+                if (x == 15 && y == 15)
+                    corners[cornersIndex]->setRotation(1);
                 if (x == 0 && y == 15)
-                    ((Tile*) corners[cornersIndex])->setRotation(1);
+                    corners[cornersIndex]->setRotation(2);
+                if (x == 0 && y == 0)
+                    corners[cornersIndex]->setRotation(3);
                 _tiles[y][x] = corners[cornersIndex++];
             }
 
             // Place edge tile
-            else if (x == 0 || x == 15 || y == 0 || y == 15){
-                if (x == 0)
-                    ((Tile*) borders[bordersIndex])->setRotation(2);
+            else if (x == 0 || x == 15 || y == 0 || y == 15) {
                 if (y == 0)
-                    ((Tile*) borders[bordersIndex])->setRotation(3);
+                    borders[bordersIndex]->setRotation(0);
+                if (x == 15)
+                    borders[bordersIndex]->setRotation(1);
                 if (y == 15)
-                    ((Tile*) borders[bordersIndex])->setRotation(1);
+                    borders[bordersIndex]->setRotation(2);
+                if (x == 0)
+                    borders[bordersIndex]->setRotation(3);
                 _tiles[y][x] = borders[bordersIndex++];
             }
 
@@ -78,10 +111,13 @@ Board::Board()
             }
         }
     }
+
+    // Calculate board fitness
     evaluate();
 }
 
-Board::Board(const Board& other) {
+Board::Board(const Board& other)
+{
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             _tiles[y][x] = new Tile(*(other._tiles[y][x]));
