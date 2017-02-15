@@ -18,20 +18,20 @@ Population::~Population()
 
 void Population::crossover()
 {
-    unsigned int i = 0;
     std::vector<Board*> newBoards(_boards.size());
-    newBoards[i++] = _best;
+    newBoards[0] = _best;
 
     auto parentItA = _boards.begin();
     auto parentItB = std::next(_boards.begin());
     std::pair<Board*, Board*> children;
 
-    while (i < _boards.size())
+    //Skip best (which is number 0)
+    for (unsigned int i = 1; i < _boards.size(); i += 2)
     {
         children = Board::regionExchangeCrossover(**parentItA, **parentItB);
-        newBoards[i++] = children.first;
-        if (i < _boards.size()) {
-            newBoards[i++] = children.second;
+        newBoards[i] = children.first;
+        if ((i + 1) < _boards.size()) {
+            newBoards[i + 1] = children.second;
         }
         else
             delete children.second;
@@ -39,21 +39,18 @@ void Population::crossover()
         ++parentItB;
     }
 
-    i = 1;
-    while (i < _boards.size())
-        delete _boards[i++];
+    //Skip best (which is number 0)
+    for (unsigned int i = 1; i < _boards.size(); ++i)
+        delete _boards[i];
     _boards = std::move(newBoards);
 }
 
 void Population::mutate()
 {
-//#pragma omp parallel for num_threads(4) schedule(static)
-    for (Board* individual : _boards)
-    {
-        if (individual != _best) {
-            individual->rotateInnerRegionMutation();
-            individual->swapInnerRegionMutation();
-        }
+    //Skip best (which is number 0)
+    for (unsigned int i = 1; i < _boards.size(); ++i) {
+        _boards[i]->rotateInnerRegionMutation();
+        _boards[i]->swapInnerRegionMutation();
     }
 }
 
