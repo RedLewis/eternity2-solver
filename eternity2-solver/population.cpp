@@ -34,6 +34,8 @@ void Population::crossover()
         if (newBoards.size() < _boards.size()) {
             newBoards.push_back(children.second);
         }
+        else
+            delete children.second;
         ++parentItA;
         ++parentItB;
     }

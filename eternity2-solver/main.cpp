@@ -16,9 +16,10 @@ int main()
 
     srand(time(NULL));
     Population population(10);
-    while (population.getBestBoard().getFitness() != Board::MAX_FITNESS)
+    unsigned int m = 0;
+    while (population.getBestBoard().getFitness() != Board::MAX_FITNESS && m < 10)
     {
-
+        ++m;
         population.stepGeneration();
         std::cout << std::setw(5) << std::left << "Gen:"
                   << std::setw(12) << std::left << population.getGeneration()
