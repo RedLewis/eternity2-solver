@@ -83,11 +83,11 @@ Board::Board()
             if ((x == 0 && y == 0) || (x == 0 && y == 15) || (x == 15 && y == 0) || (x == 15 && y == 15)) {
                 if (x == 15 && y == 0)
                     corners[cornersIndex]->setRotation(0);
-                if (x == 15 && y == 15)
+                else if (x == 15 && y == 15)
                     corners[cornersIndex]->setRotation(1);
-                if (x == 0 && y == 15)
+                else if (x == 0 && y == 15)
                     corners[cornersIndex]->setRotation(2);
-                if (x == 0 && y == 0)
+                else if (x == 0 && y == 0)
                     corners[cornersIndex]->setRotation(3);
                 _tiles[y][x] = corners[cornersIndex++];
             }
@@ -96,11 +96,11 @@ Board::Board()
             else if (x == 0 || x == 15 || y == 0 || y == 15) {
                 if (y == 0)
                     borders[bordersIndex]->setRotation(0);
-                if (x == 15)
+                else if (x == 15)
                     borders[bordersIndex]->setRotation(1);
-                if (y == 15)
+                else if (y == 15)
                     borders[bordersIndex]->setRotation(2);
-                if (x == 0)
+                else if (x == 0)
                     borders[bordersIndex]->setRotation(3);
                 _tiles[y][x] = borders[bordersIndex++];
             }
