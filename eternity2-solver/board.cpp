@@ -20,21 +20,19 @@ Board::Board()
     int c = 0;
     std::array<Tile*, 56> borders;
     int b = 0;
-
     for(int j=0; j < 256; ++j) {
         if ((E2TILES[j][0] == 0 && E2TILES[j][1] == 0) ||
             (E2TILES[j][1] == 0 && E2TILES[j][2] == 0) ||
             (E2TILES[j][2] == 0 && E2TILES[j][3] == 0) ||
             (E2TILES[j][3] == 0 && E2TILES[j][0] == 0))
         {
-            corners[c] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], rand() % 4));
-            c++;
+            //mettre les angles dans la vers le haut à gauche
+            corners[c++] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], 0));
         }else if (E2TILES[j][0] == 0 || E2TILES[j][1] == 0 || E2TILES[j][2] == 0 || E2TILES[j][3] == 0){
-            borders[b] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], rand() % 4));
-            b++;
+            //mettre les bordures vers la gauche
+            borders[b++] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], 0));
         }else{
-            inners[i] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], rand() % 4));
-            i++;
+            inners[i++] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], rand() % 4));
         }
     }
 
@@ -47,14 +45,31 @@ Board::Board()
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             if ((x == 0 && y == 0) || (x == 0 && y == 15) || (x == 15 && y == 0) || (x == 15 && y == 15)){
+                //set en dure des directino pour que les bords soit au bords ...
+                if (x == 0 && y == 0){
+                    ((Tile*) corners[c])->setRotation(2);
+                }
+                if (x == 15 && y == 0){
+                    ((Tile*) corners[c])->setRotation(3);
+                }
+                if (x == 0 && y == 15){
+                    ((Tile*) corners[c])->setRotation(1);
+                }
                 _tiles[y][x] = corners[c++];
             }else if (x == 0 || x == 15 || y == 0 || y == 15){
+                if (x == 0){
+                    ((Tile*) borders[b])->setRotation(2);
+                }
+                if (y == 0){
+                    ((Tile*) borders[b])->setRotation(3);
+                }
+                if (y == 15){
+                    ((Tile*) borders[b])->setRotation(1);
+                }
                 _tiles[y][x] = borders[b++];
             }else{
                 _tiles[y][x] = inners[i++];
             }
-            if (x == 15)
-                std::cout << std::endl;
         }
     }
     evaluate();
@@ -344,20 +359,19 @@ bool Board::swapRectangle(int posXa, int posYa,int posXb, int posYb, int sizeX, 
     return true;
 }
 
-void Board::rotateRegionMutation()
+void Board::rotateInnerRegionMutation()
 {
-    int x = std::rand() % 16;
-    int y = std::rand() % 16;
-    //todo
+    int x = 1 + (std::rand() % 14);
+    int y = 1 + (std::rand() % 14);
     int size;
     if (x > y)
-        size = std::rand() % (16 - x);
+        size = std::rand() % (15 - x);
     else
-        size = std::rand() % (16 - y);
+        size = std::rand() % (15 - y);
     rotateSquare(x, y, size);
 }
 
-void Board::swapRegionMutation()
+void Board::swapInnerRegionMutation()
 {
     int xa;
     int ya;
@@ -366,13 +380,13 @@ void Board::swapRegionMutation()
     int sizeX = 0;
     int sizeY = 0;
     do{
-        xa = std::rand() % 16;
-        ya = std::rand() % 16;
-        xb = std::rand() % 16;
-        yb = std::rand() % 16;
+        xa = 1 + (std::rand() % 14);
+        ya = 1 + (std::rand() % 14);
+        xb = 1 + (std::rand() % 14);
+        yb = 1 + (std::rand() % 14);
     }while (xa == xb && ya == yb);
-    int maxSizeX = std::min(std::max(1, std::abs(xa - xb)), 16 - std::max(xa, xb));
-    int maxSizeY = std::min(std::max(1, std::abs(ya - yb)), 16 - std::max(ya, yb));
+    int maxSizeX = std::min(std::max(1, std::abs(xa - xb)), 15 - std::max(xa, xb));
+    int maxSizeY = std::min(std::max(1, std::abs(ya - yb)), 15 - std::max(ya, yb));
 
     sizeX = 1 + (std::rand() % maxSizeX);
     sizeY = 1 + (std::rand() % maxSizeY);

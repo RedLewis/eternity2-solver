@@ -51,8 +51,8 @@ void Population::mutate()
     for (Board* individual : _boards)
     {
         if (individual != _best){
-            individual->rotateRegionMutation();
-            individual->swapRegionMutation();
+            individual->rotateInnerRegionMutation();
+            individual->swapInnerRegionMutation();
         }
     }
 }

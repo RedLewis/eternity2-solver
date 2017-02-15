@@ -31,8 +31,8 @@ public:
     int getFitness() const;
     std::ostream& _stringify(std::ostream& os) const;
     static std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
-    void rotateRegionMutation();
-    void swapRegionMutation();
+    void rotateInnerRegionMutation();
+    void swapInnerRegionMutation();
     int evaluate();
 
     bool isValid();
