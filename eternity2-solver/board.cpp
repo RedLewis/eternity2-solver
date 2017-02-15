@@ -14,19 +14,49 @@
 
 Board::Board()
 {
-    std::array<Tile*, 256 > tmp;
-    for(int i=0; i < 256; ++i) {
-        tmp[i] = (new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], rand() % 4));
-    }
+    std::array<Tile*, 196 > inners;
+    int i = 0;
+    std::array<Tile*, 4> corners;
+    int c = 0;
+    std::array<Tile*, 56> borders;
+    int b = 0;
 
-    std::shuffle(tmp.begin(), tmp.end(), std::default_random_engine(rand()));
-    int index = 0;
-    for (int y = 0; y < 16; ++y) {
-        for (int x = 0; x < 16; ++x) {
-            _tiles[y][x] = tmp[index++];
+    for(int j=0; j < 256; ++j) {
+        if ((E2TILES[j][0] == 0 && E2TILES[j][1] == 0) ||
+            (E2TILES[j][1] == 0 && E2TILES[j][2] == 0) ||
+            (E2TILES[j][2] == 0 && E2TILES[j][3] == 0) ||
+            (E2TILES[j][3] == 0 && E2TILES[j][0] == 0))
+        {
+            corners[c] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], rand() % 4));
+            c++;
+        }else if (E2TILES[j][0] == 0 || E2TILES[j][1] == 0 || E2TILES[j][2] == 0 || E2TILES[j][3] == 0){
+            borders[b] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], rand() % 4));
+            b++;
+        }else{
+            inners[i] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], rand() % 4));
+            i++;
         }
     }
 
+    std::shuffle(corners.begin(), corners.end(), std::default_random_engine(rand()));
+    std::shuffle(borders.begin(), borders.end(), std::default_random_engine(rand()));
+    std::shuffle(inners.begin(), inners.end(), std::default_random_engine(rand()));
+    i = 0;
+    c = 0;
+    b = 0;
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            if ((x == 0 && y == 0) || (x == 0 && y == 15) || (x == 15 && y == 0) || (x == 15 && y == 15)){
+                _tiles[y][x] = corners[c++];
+            }else if (x == 0 || x == 15 || y == 0 || y == 15){
+                _tiles[y][x] = borders[b++];
+            }else{
+                _tiles[y][x] = inners[i++];
+            }
+            if (x == 15)
+                std::cout << std::endl;
+        }
+    }
     evaluate();
 }
 
