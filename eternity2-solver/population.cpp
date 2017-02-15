@@ -16,32 +16,45 @@ Population::~Population()
         delete board;
 }
 
-void Population::crossover()
+Board* Population::tournamentSelection(int tournamentSize)const
 {
-    std::vector<Board*> newBoards(_boards.size());
-    newBoards[0] = _best;
-
-    auto parentItA = _boards.begin();
-    auto parentItB = std::next(_boards.begin());
-    std::pair<Board*, Board*> children;
-
-    //Skip best (which is number 0)
-    for (unsigned int i = 1; i < _boards.size(); i += 2)
+    Board* best = NULL;
+    for (int i = 0; i < tournamentSize; ++i)
     {
-        children = Board::regionExchangeCrossover(**parentItA, **parentItB);
-        newBoards[i] = children.first;
-        if ((i + 1) < _boards.size()) {
-            newBoards[i + 1] = children.second;
+        Board* ind = _boards[std::rand() % _boards.size()];
+        if (best == NULL || best->getFitness() < ind->getFitness())
+        {
+            best = ind;
+        }
+    }
+    return best;
+}
+
+void Population::selection()
+{
+    std::vector<Board*> newBoards(0);
+    newBoards.reserve(_boards.size());
+    newBoards.push_back(_best);
+
+    std::pair<Board*, Board*> children;
+    //Skip best (which is number 0)
+    do {
+        Board* parentA = tournamentSelection(2);
+        Board* parentB = tournamentSelection(2);
+        children = Board::regionExchangeCrossover(*parentA, *parentB);
+        newBoards.push_back(children.first);
+        if (newBoards.size() < _boards.size()) {
+            newBoards.push_back(children.second);
         }
         else
             delete children.second;
-        ++parentItA;
-        ++parentItB;
-    }
-
+    }while(newBoards.size() < _boards.size());
     //Skip best (which is number 0)
-    for (unsigned int i = 1; i < _boards.size(); ++i)
-        delete _boards[i];
+    for (unsigned int i = 0; i < _boards.size(); ++i){
+        if (_boards[i] != _best){
+            delete _boards[i];
+        }
+    }
     _boards = std::move(newBoards);
 }
 
@@ -51,23 +64,22 @@ void Population::mutate()
     for (unsigned int i = 1; i < _boards.size(); ++i) {
         _boards[i]->rotateInnerRegionMutation();
         _boards[i]->swapInnerRegionMutation();
+        _boards[i]->swapAndRotateInnerRegionMutation();
     }
 }
 
 void Population::evaluate() {
-    for (auto board : _boards)
-        board->evaluate();
-
-    std::sort(_boards.begin(), _boards.end(), [](Board*& first, Board*& second){
-        return first->getFitness() > second->getFitness();
-    });
-
-    _best = _boards.front();
-    _worst = _boards.back();
-
     _averageFitness = 0;
-    for (auto board : _boards)
+    for (Board* board : _boards){
+        board->evaluate();
         _averageFitness += board->getFitness();
+        if (_best == NULL || _best->getFitness() < board->getFitness()){
+        _best = board;
+       }
+        if (_worst == NULL || _worst->getFitness() > board->getFitness()){
+        _worst = board;
+       }
+    }
     _averageFitness /=_boards.size();
 }
 
@@ -93,7 +105,7 @@ const Board& Population::getWorstBoard()const
 
 void Population::stepGeneration()
 {
-    crossover();
+    selection();
     mutate();
     evaluate();
     _generation += 1;
