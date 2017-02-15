@@ -435,6 +435,28 @@ void Board::swapInnerRegionMutation()
         exit(0);
 }
 
+void Board::swapAndRotateInnerRegionMutation(){
+    int xa;
+    int ya;
+    int xb;
+    int yb;
+    do{
+        xa = 1 + (std::rand() % 14);
+        ya = 1 + (std::rand() % 14);
+        xb = 1 + (std::rand() % 14);
+        yb = 1 + (std::rand() % 14);
+    }while (xa == xb && ya == yb);
+    swapRectangle(xa, ya, xb, yb, 1, 1);
+    int rotate = std::rand() % 4;
+    while (rotate--){
+        rotateSquare(xa,ya,1);
+    }
+    rotate = std::rand() % 4;
+    while (rotate--){
+        rotateSquare(xb,yb,1);
+    }
+}
+
 int Board::evaluate()
 {
     const Tile* topCell;

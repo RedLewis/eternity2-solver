@@ -12,8 +12,8 @@ class Population
     float _mutationRate;
     float _mutationPotency;
 
-    Board* _best;
-    Board* _worst;
+    Board* _best = NULL;
+    Board* _worst = NULL;
     float _averageFitness;
 public:
     Population(int size = 100);
@@ -24,9 +24,9 @@ public:
     const Board& getWorstBoard()const;
 
     void stepGeneration();
-
+    Board* tournamentSelection(int tournamentSize)const;
 private:
-    void crossover();
+    void selection();
     void mutate();
     void evaluate();
 private:

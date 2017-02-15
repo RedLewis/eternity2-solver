@@ -34,6 +34,7 @@ public:
     bool mutateOuter();
     void rotateInnerRegionMutation();
     void swapInnerRegionMutation();
+    void swapAndRotateInnerRegionMutation();
     int evaluate();
 
     bool isValid();
