@@ -142,12 +142,13 @@ int Board::getFitness() const
 std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, const Board& parentB)
 {
     // Select a random region (two points and a random width and height)
-    const unsigned char width = 1 + rand() % 16;
-    const unsigned char height = 1 + rand() % 16;
-    const Point<unsigned char> pointA(rand() % (16 - (width - 1)),
-                                rand() % (16 - (height - 1)));
-    const Point<unsigned char> pointB(rand() % (16 - (width - 1)),
-                                rand() % (16 - (height - 1)));
+    // Exculde edges
+    const unsigned char width = 1 + rand() % 14;
+    const unsigned char height = 1 + rand() % 14;
+    const Point<unsigned char> pointA(1 + rand() % (14 - (width - 1)),
+                                      1 + rand() % (14 - (height - 1)));
+    const Point<unsigned char> pointB(1 + rand() % (14 - (width - 1)),
+                                      1 + rand() % (14 - (height - 1)));
 
     //Clone the two parents
     std::pair<Board*, Board*> children(new Board(parentA), new Board(parentB));
