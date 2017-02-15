@@ -1,5 +1,6 @@
 #include "population.h"
 #include <iostream>
+#include <algorithm>
 
 Population::Population(int size): _boards(size)
 {
@@ -11,61 +12,61 @@ Population::Population(int size): _boards(size)
 
 Population::~Population()
 {
-    _boards.remove_if([](Board* b){
-        delete b;
-        return true;
-    });
+    for (Board* board : _boards)
+        delete board;
 }
 
 void Population::crossover()
 {
-    std::list<Board*> newBoards;
-    newBoards.push_back(_boards.front());
+    unsigned int i = 0;
+    std::vector<Board*> newBoards(_boards.size());
+    newBoards[i++] = _best;
 
     auto parentItA = _boards.begin();
     auto parentItB = std::next(_boards.begin());
-
     std::pair<Board*, Board*> children;
 
-    while (newBoards.size() < _boards.size())
+    while (i < _boards.size())
     {
         children = Board::regionExchangeCrossover(**parentItA, **parentItB);
-        newBoards.push_back(children.first);
-        if (newBoards.size() < _boards.size()) {
-            newBoards.push_back(children.second);
+        newBoards[i++] = children.first;
+        if (i < _boards.size()) {
+            newBoards[i++] = children.second;
         }
         else
             delete children.second;
         ++parentItA;
         ++parentItB;
     }
-    for(auto it = std::next(_boards.begin()); it != _boards.end(); ++it) {
-        delete *it;
-    }
-    _boards.clear();
+
+    i = 1;
+    while (i < _boards.size())
+        delete _boards[i++];
     _boards = std::move(newBoards);
 }
 
 void Population::mutate()
 {
+//#pragma omp parallel for num_threads(4) schedule(static)
     for (Board* individual : _boards)
     {
-        if (individual != _best){
+        if (individual != _best) {
             individual->rotateInnerRegionMutation();
             individual->swapInnerRegionMutation();
         }
     }
 }
 
-void Population::evaluate(){
+void Population::evaluate() {
     for (auto board : _boards)
         board->evaluate();
 
-    _boards.sort([](Board*& first, Board*& second){
+    std::sort(_boards.begin(), _boards.end(), [](Board*& first, Board*& second){
         return first->getFitness() > second->getFitness();
     });
-    _best = *_boards.begin();
-    _worst = *_boards.end();
+
+    _best = _boards.front();
+    _worst = _boards.back();
 
     _averageFitness = 0;
     for (auto board : _boards)
