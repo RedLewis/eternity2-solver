@@ -31,6 +31,7 @@ public:
     int getFitness() const;
     std::ostream& _stringify(std::ostream& os) const;
     static std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
+    bool mutateOuter();
     void rotateInnerRegionMutation();
     void swapInnerRegionMutation();
     int evaluate();
@@ -38,6 +39,7 @@ public:
     bool isValid();
 
 public:
+
     bool swapRectangle(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);
     bool rotateSquare(int posX, int posY, int size);
     static void unitTestSwap();

@@ -261,6 +261,41 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     return children;
 }
 
+bool Board::mutateOuter()
+{
+    int posA = 1 + (std::rand() % 14);
+    int posB = 1 + (std::rand() % 14);
+    int colA = std::rand() % 4;
+    int colB = std::rand() % 4;
+
+    Tile** tmpa;
+    Tile** tmpb;
+
+    switch (colA){
+        case 0: tmpa = &_tiles[0][posA]; break;
+        case 1: tmpa = &_tiles[15][posA]; break;
+        case 2: tmpa = &_tiles[posA][0]; break;
+        case 3: tmpa = &_tiles[posA][15]; break;
+    }
+
+    switch (colB){
+        case 0: tmpb = &_tiles[0][posB]; break;
+        case 1: tmpb = &_tiles[15][posB]; break;
+        case 2: tmpb = &_tiles[posB][0]; break;
+        case 3: tmpb = &_tiles[posB][15]; break;
+    }
+
+    int orientation = (*tmpa)->getRotation();
+    (*tmpa)->setRotation((*tmpb)->getRotation());
+    (*tmpb)->setRotation(orientation);
+    Tile* tmp;
+    tmp = *tmpa;
+    *tmpa = *tmpb;
+    *tmpb = tmp;
+
+    return true;
+}
+
 bool Board::rotateSquare(int posX, int posY,int size)
 {
     if ((posX < 0 || posX >= 16) ||
@@ -400,7 +435,6 @@ void Board::swapInnerRegionMutation()
         exit(0);
 }
 
-
 int Board::evaluate()
 {
     const Tile* topCell;
@@ -439,6 +473,8 @@ int Board::evaluate()
     }
     return _fitness;
 }
+
+
 
 bool Board::isValid() {
     for (int y = 0; y < 16; ++y) {

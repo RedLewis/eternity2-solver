@@ -15,7 +15,7 @@ int main()
     int oldBest = 0;
     int since = 0;
     srand(time(NULL));
-    Population population(100);
+    Population population(10000);
     while (population.getBestBoard().getFitness() != Board::MAX_FITNESS)
     {
         population.stepGeneration();
