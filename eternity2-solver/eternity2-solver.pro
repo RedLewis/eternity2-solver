@@ -3,6 +3,9 @@ CONFIG += console c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
+QMAKE_CXXFLAGS+= -fopenmp
+QMAKE_LFLAGS +=  -fopenmp
+
 !win32 {
     # -march=native selects all the SSE/AVX instructions available on the processor.
     # For a Sandy Bridge processor, the flowing flags are selected:
@@ -23,5 +26,6 @@ HEADERS += \
     board.h \
     population.h \
     e2tiles.h \
-    tile.h
+    tile.h \
+    fpstimer.h
     tile.h

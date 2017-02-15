@@ -8,9 +8,13 @@
 #include <chrono>
 #include <assert.h>
 #include <iomanip>
+#include "fpstimer.h"
 
 int main()
 {
+
+    FPSTimer timer;
+
     //Board::unitTestSwap();;
     int oldBest = 0;
     int since = 0;
@@ -29,6 +33,7 @@ int main()
                   << std::setw(8) << std::left << population.getAverageFitness()
                   << std::setw(7) << std::left << "Worst:"
                   << std::setw(8) << std::left << population.getWorstBoard().getFitness()
+                  << "DeltaT: " << timer.update()
                   << std::endl;
         ++since;;
         if (oldBest < population.getBestBoard().getFitness()){

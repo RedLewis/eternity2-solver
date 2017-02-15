@@ -7,7 +7,7 @@
 
 class Population
 {
-    std::list<Board*> _boards;
+    std::vector<Board*> _boards;
     unsigned int _generation = 1;
     float _mutationRate;
     float _mutationPotency;

@@ -1,5 +1,6 @@
 #include "population.h"
 #include <iostream>
+#include <algorithm>
 
 Population::Population(int size): _boards(size)
 {
@@ -11,61 +12,58 @@ Population::Population(int size): _boards(size)
 
 Population::~Population()
 {
-    _boards.remove_if([](Board* b){
-        delete b;
-        return true;
-    });
+    for (Board* board : _boards)
+        delete board;
 }
 
 void Population::crossover()
 {
-    std::list<Board*> newBoards;
-    newBoards.push_back(_boards.front());
+    std::vector<Board*> newBoards(_boards.size());
+    newBoards[0] = _best;
 
     auto parentItA = _boards.begin();
     auto parentItB = std::next(_boards.begin());
-
     std::pair<Board*, Board*> children;
 
-    while (newBoards.size() < _boards.size())
+    //Skip best (which is number 0)
+    for (unsigned int i = 1; i < _boards.size(); i += 2)
     {
         children = Board::regionExchangeCrossover(**parentItA, **parentItB);
-        newBoards.push_back(children.first);
-        if (newBoards.size() < _boards.size()) {
-            newBoards.push_back(children.second);
+        newBoards[i] = children.first;
+        if ((i + 1) < _boards.size()) {
+            newBoards[i + 1] = children.second;
         }
         else
             delete children.second;
         ++parentItA;
         ++parentItB;
     }
-    for(auto it = std::next(_boards.begin()); it != _boards.end(); ++it) {
-        delete *it;
-    }
-    _boards.clear();
+
+    //Skip best (which is number 0)
+    for (unsigned int i = 1; i < _boards.size(); ++i)
+        delete _boards[i];
     _boards = std::move(newBoards);
 }
 
 void Population::mutate()
 {
-    for (Board* individual : _boards)
-    {
-        if (individual != _best){
-            individual->rotateInnerRegionMutation();
-            individual->swapInnerRegionMutation();
-        }
+    //Skip best (which is number 0)
+    for (unsigned int i = 1; i < _boards.size(); ++i) {
+        _boards[i]->rotateInnerRegionMutation();
+        _boards[i]->swapInnerRegionMutation();
     }
 }
 
-void Population::evaluate(){
+void Population::evaluate() {
     for (auto board : _boards)
         board->evaluate();
 
-    _boards.sort([](Board*& first, Board*& second){
+    std::sort(_boards.begin(), _boards.end(), [](Board*& first, Board*& second){
         return first->getFitness() > second->getFitness();
     });
-    _best = *_boards.begin();
-    _worst = *_boards.end();
+
+    _best = _boards.front();
+    _worst = _boards.back();
 
     _averageFitness = 0;
     for (auto board : _boards)
