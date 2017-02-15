@@ -12,7 +12,7 @@
 int main()
 {
     //Board::unitTestSwap();;
-    int oldBest = 0;
+    /*int oldBest = 0;
     int since = 0;
     srand(time(NULL));
     Population population(100);
@@ -36,5 +36,7 @@ int main()
             oldBest = population.getBestBoard().getFitness();
             std::cerr << population.getBestBoard() << std::endl;
         }
-    }
+    }*/
+    Board b;
+    std::cout << b << std::endl;
 }

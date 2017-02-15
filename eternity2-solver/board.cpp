@@ -14,61 +14,67 @@
 
 Board::Board()
 {
-    std::array<Tile*, 196 > inners;
-    int i = 0;
-    std::array<Tile*, 4> corners;
-    int c = 0;
+    std::array<Tile*, 196> inners;
+    int innersIndex = 0;
     std::array<Tile*, 56> borders;
-    int b = 0;
-    for(int j=0; j < 256; ++j) {
-        if ((E2TILES[j][0] == 0 && E2TILES[j][1] == 0) ||
-            (E2TILES[j][1] == 0 && E2TILES[j][2] == 0) ||
-            (E2TILES[j][2] == 0 && E2TILES[j][3] == 0) ||
-            (E2TILES[j][3] == 0 && E2TILES[j][0] == 0))
-        {
-            //mettre les angles dans la vers le haut à gauche
-            corners[c++] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], 0));
-        }else if (E2TILES[j][0] == 0 || E2TILES[j][1] == 0 || E2TILES[j][2] == 0 || E2TILES[j][3] == 0){
-            //mettre les bordures vers la gauche
-            borders[b++] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], 0));
-        }else{
-            inners[i++] = (new Tile(E2TILES[j][0], E2TILES[j][1], E2TILES[j][2], E2TILES[j][3], rand() % 4));
+    int bordersIndex = 0;
+    std::array<Tile*, 4> corners;
+    int cornersIndex = 0;
+
+    // Sort tiles in borders, conners and inners arrays
+    for(int i = 0; i < 256; ++i) {
+        unsigned char edges = 0;
+        edges += (E2TILES[i][0] == Tile::EDGE_VALUE) ? 1 : 0;
+        edges += (E2TILES[i][1] == Tile::EDGE_VALUE) ? 1 : 0;
+        edges += (E2TILES[i][2] == Tile::EDGE_VALUE) ? 1 : 0;
+        edges += (E2TILES[i][3] == Tile::EDGE_VALUE) ? 1 : 0;
+        if (edges == 2) {
+            corners[cornersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], 0);
+        } else if (edges == 1) {
+            borders[bordersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], 0);
+        } else {
+            inners[innersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], rand() % 4);
         }
     }
 
+    // Shuffles tile arrays
     std::shuffle(corners.begin(), corners.end(), std::default_random_engine(rand()));
     std::shuffle(borders.begin(), borders.end(), std::default_random_engine(rand()));
     std::shuffle(inners.begin(), inners.end(), std::default_random_engine(rand()));
-    i = 0;
-    c = 0;
-    b = 0;
+
+    // Place tiles on the board
+    innersIndex = 0;
+    cornersIndex = 0;
+    bordersIndex = 0;
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
+
+            // Place corner tile
             if ((x == 0 && y == 0) || (x == 0 && y == 15) || (x == 15 && y == 0) || (x == 15 && y == 15)){
-                //set en dure des directino pour que les bords soit au bords ...
-                if (x == 0 && y == 0){
-                    ((Tile*) corners[c])->setRotation(2);
-                }
-                if (x == 15 && y == 0){
-                    ((Tile*) corners[c])->setRotation(3);
-                }
-                if (x == 0 && y == 15){
-                    ((Tile*) corners[c])->setRotation(1);
-                }
-                _tiles[y][x] = corners[c++];
-            }else if (x == 0 || x == 15 || y == 0 || y == 15){
-                if (x == 0){
-                    ((Tile*) borders[b])->setRotation(2);
-                }
-                if (y == 0){
-                    ((Tile*) borders[b])->setRotation(3);
-                }
-                if (y == 15){
-                    ((Tile*) borders[b])->setRotation(1);
-                }
-                _tiles[y][x] = borders[b++];
-            }else{
-                _tiles[y][x] = inners[i++];
+                //set en dure des direction pour que les bords soit au bords ...
+                if (x == 0 && y == 0)
+                    ((Tile*) corners[cornersIndex])->setRotation(2);
+                if (x == 15 && y == 0)
+                    ((Tile*) corners[cornersIndex])->setRotation(3);
+                if (x == 0 && y == 15)
+                    ((Tile*) corners[cornersIndex])->setRotation(1);
+                _tiles[y][x] = corners[cornersIndex++];
+            }
+
+            // Place edge tile
+            else if (x == 0 || x == 15 || y == 0 || y == 15){
+                if (x == 0)
+                    ((Tile*) borders[bordersIndex])->setRotation(2);
+                if (y == 0)
+                    ((Tile*) borders[bordersIndex])->setRotation(3);
+                if (y == 15)
+                    ((Tile*) borders[bordersIndex])->setRotation(1);
+                _tiles[y][x] = borders[bordersIndex++];
+            }
+
+            // Place inner tile
+            else {
+                _tiles[y][x] = inners[innersIndex++];
             }
         }
     }
@@ -99,7 +105,6 @@ int Board::getFitness() const
 
 std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, const Board& parentB)
 {
-
     // Select a random region (two points and a random width and height)
     const unsigned char width = 1 + rand() % 16;
     const unsigned char height = 1 + rand() % 16;
