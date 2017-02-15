@@ -23,5 +23,6 @@ HEADERS += \
     board.h \
     population.h \
     e2tiles.h \
-    tile.h
+    tile.h \
+    fpstimer.h
     tile.h
