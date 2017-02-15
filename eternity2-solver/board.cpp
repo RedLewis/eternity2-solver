@@ -253,38 +253,7 @@ bool Board::rotateSquare(int posX, int posY,int size)
     }
     return true;
 }
-/*
-// ne gere pas les overlap
-void Board::swapSquare(int posXa, int posYa,int posXb, int posYb, int sizeX, int sizeY)
-{
-    if ((posXa < 0 || posXa >= 16) ||
-        (posYa < 0 || posYa >= 16) ||
-        (posXb < 0 || posXb >= 16) ||
-        (posYb < 0 || posYb >= 16) ||
-        (sizeX < 0 || sizeX > 16) ||
-        (sizeY < 0 || sizeY > 16) ||
-        (posXa + sizeX > 16) ||
-        (posYa + sizeY > 16) ||
-        (posXb + sizeX > 16) ||
-        (posYb + sizeY > 16)){
-        std::cerr << "mutation parameter invalid" << std::endl;
-        return;
-    }
 
-    if (((posXb >= posXa && posXb < (posXa + sizeX)) && (posYb >= posYa && posYb < (posYa + sizeY))) ||
-        ((posXa >= posXb && posXa < (posXb + sizeX)) && (posYa >= posYb && posYa < (posYb + sizeY)))){
-        std::cerr << "mutation parameter invalid overlap not handled" << std::endl;
-        return;
-    }
-    for ( int i = 0; i < sizeY; i++ ) {
-      for ( int j = 0; j < sizeX; j++ ) {
-          Cell* tmp = _board[posYa + i][posXa + j];
-          _board[posYa + i][posXa + j] = _board[posYb + i][posXb + j];
-          _board[posYb + i][posXb + j] = tmp;
-        }
-    }
-}
-*/
 bool Board::swapRectangle(int posXa, int posYa,int posXb, int posYb, int sizeX, int sizeY)
 {
     if ((posXa < 0 || posXa >= 16) ||
@@ -342,18 +311,12 @@ bool Board::swapRectangle(int posXa, int posYa,int posXb, int posYb, int sizeX, 
     }
 
 
-    Tile *cpy[sizeY][sizeX] = {};
-
+    Tile *cpy;
     for ( int i = 0; i < sizeY; ++i ) {
       for ( int j = 0; j < sizeX; ++j ) {
-          cpy[i][j] = _tiles[posYa + i][posXa + j];
-          _tiles[posYa + i][posXa + j] = _tiles[posYb + i][posXb + j];
-        }
-    }
-
-    for ( int i = 0; i < sizeY; ++i ) {
-      for ( int j = 0; j < sizeX; ++j ) {
-          _tiles[posYb + i][posXb + j] = cpy[i][j];
+          cpy = _tiles[posYb + i][posXb + j];
+          _tiles[posYb + i][posXb + j] = _tiles[posYa + i][posXa + j];
+          _tiles[posYa + i][posXa + j] = cpy;
         }
     }
     return true;
