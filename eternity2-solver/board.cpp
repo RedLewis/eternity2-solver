@@ -12,8 +12,13 @@
 #include <cassert>
 #include "tile.h"
 
-Board::Board()
+Board::Board(bool empty)
 {
+    if (empty) {
+        _fitness = 0;
+        return;
+    }
+
     std::array<Tile*, 196> inners;
     int innersIndex = 0;
     std::array<Tile*, 56> borders;
@@ -120,16 +125,19 @@ Board::Board(const Board& other)
 {
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
-            _tiles[y][x] = new Tile(*(other._tiles[y][x]));
+            if (other._tiles[y][x] != NULL)
+                _tiles[y][x] = new Tile(*(other._tiles[y][x]));
         }
     }
+    _fitness = other._fitness;
 }
 
 Board::~Board()
 {
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
-            delete _tiles[y][x];
+            if (_tiles[y][x] != NULL)
+                delete _tiles[y][x];
         }
     }
 }
@@ -414,6 +422,8 @@ int Board::evaluate()
         for (int x = 0; x < 16; ++x) {
             //Get neighbor cells
             currentCell = _tiles[y][x];
+            if (currentCell == NULL)
+                continue;
             topCell = (y == 0) ? NULL : _tiles[y - 1][x];
             rightCell = (x == 15) ? NULL : _tiles[y][x + 1];
             downCell = (y == 15) ? NULL : _tiles[y + 1][x];
@@ -437,6 +447,7 @@ int Board::evaluate()
                 _fitness += 1;
         }
     }
+
     return _fitness;
 }
 
@@ -648,5 +659,115 @@ void Board::unitTestSwap()
     assert(tmp.swapRectangle(8,12,9,13,1,1) == true);
     assert(tmp.swapRectangle(4,7,1,4,11,6) == false);
     //*/
+
+}
+
+#include <omp.h>
+void Board::getSolvedEdgesBoards() {
+
+    //Create Board 0, the reference board out of six boards
+    //Clear board moving corner and border tiles in respective arrays
+    std::vector<Board*> refBoards(6);
+    std::array<Tile*, 56> borderTiles;
+    std::array<Tile*, 4> cornerTiles;
+    {
+        unsigned int borderTilesIndex = 0;
+        unsigned int cornerTilesIndex = 0;
+        refBoards[0] = new Board();
+        refBoards[0]->_fitness = 0;
+        for (int y = 0; y < 16; ++y) {
+            for (int x = 0; x < 16; ++x) {
+
+                //Delete inner tile
+                if ((x > 0 && x < 15) && (y > 0 && y < 15)) {
+                    if (refBoards[0]->_tiles[y][x] != NULL) {
+                        delete refBoards[0]->_tiles[y][x];
+                        refBoards[0]->_tiles[y][x] = NULL;
+                    }
+                }
+
+                //Move corner tile to list
+                else if ((x == 0 && y == 0) || (x == 15 && y == 0) || (x == 0 && y == 15) || (x == 15 && y == 15)) {
+                    refBoards[0]->_tiles[y][x]->setRotation(0);
+                    cornerTiles[cornerTilesIndex++] = refBoards[0]->_tiles[y][x];
+                    refBoards[0]->_tiles[y][x] = NULL;
+                }
+
+                //Move border tile to list
+                else {
+                    refBoards[0]->_tiles[y][x]->setRotation(0);
+                    borderTiles[borderTilesIndex++] = refBoards[0]->_tiles[y][x];
+                    refBoards[0]->_tiles[y][x] = NULL;
+                }
+            }
+        }
+    }
+
+    //Create the 6 boards with all corner combinations
+    {
+        for (int i = 1; i < 6; ++i) {
+            refBoards[i] = new Board(true);
+        }
+        //Board0
+        refBoards[0]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
+        refBoards[0]->_tiles[15][15] = new Tile(*cornerTiles[1], 1);
+        refBoards[0]->_tiles[15][0] = new Tile(*cornerTiles[2], 2);
+        refBoards[0]->_tiles[0][0] = new Tile(*cornerTiles[3], 3);
+        //Board1
+        refBoards[1]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
+        refBoards[1]->_tiles[15][15] = new Tile(*cornerTiles[2], 1);
+        refBoards[1]->_tiles[15][0] = new Tile(*cornerTiles[1], 2);
+        refBoards[1]->_tiles[0][0] = new Tile(*cornerTiles[3], 3);
+        //Board2
+        refBoards[2]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
+        refBoards[2]->_tiles[15][15] = new Tile(*cornerTiles[1], 1);
+        refBoards[2]->_tiles[15][0] = new Tile(*cornerTiles[3], 2);
+        refBoards[2]->_tiles[0][0] = new Tile(*cornerTiles[2], 3);
+        //Board3
+        refBoards[3]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
+        refBoards[3]->_tiles[15][15] = new Tile(*cornerTiles[2], 1);
+        refBoards[3]->_tiles[15][0] = new Tile(*cornerTiles[3], 2);
+        refBoards[3]->_tiles[0][0] = new Tile(*cornerTiles[1], 3);
+        //Board4
+        refBoards[4]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
+        refBoards[4]->_tiles[15][15] = new Tile(*cornerTiles[3], 1);
+        refBoards[4]->_tiles[15][0] = new Tile(*cornerTiles[1], 2);
+        refBoards[4]->_tiles[0][0] = new Tile(*cornerTiles[2], 3);
+        //Board5
+        refBoards[5]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
+        refBoards[5]->_tiles[15][15] = new Tile(*cornerTiles[3], 1);
+        refBoards[5]->_tiles[15][0] = new Tile(*cornerTiles[2], 2);
+        refBoards[5]->_tiles[0][0] = new Tile(*cornerTiles[1], 3);
+    }
+
+    //Solve refBoards into all possible edges solutions
+    std::list<Board*> solvedEdgesBoards;
+//#pragma omp parallel for num_threads(6) schedule(static)
+    for (int i = 0; i < 6; ++i) {
+        std::list<Board*> solvedEdgesBoardsForBoard;
+        getSolvedEdgesForBoard(refBoards[i], borderTiles, solvedEdgesBoardsForBoard);
+//#pragma omp critical
+        solvedEdgesBoards.splice(solvedEdgesBoards.end(), solvedEdgesBoardsForBoard);
+    }
+
+    //Clear data
+    for (Tile* tile : borderTiles)
+        delete tile;
+    for (Tile* tile : cornerTiles)
+        delete tile;
+    for (Board* board : refBoards)
+        delete board;
+
+    std::cout << "Done" << std::endl;
+}
+
+void Board::getSolvedEdgesForBoard(Board* refBoard, std::array<Tile*, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard) {
+    unsigned char nextValue = refBoard->_tiles[0][0]->getRight();
+    std::list<Tile*> candidateTiles;
+
+    std::cout << (int)nextValue << std::endl;
+    for (Tile* borderTile : borderTiles) {
+        std::cout << (int)borderTile->getLeft() << std::endl;
+    }
 
 }
