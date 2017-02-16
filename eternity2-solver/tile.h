@@ -36,6 +36,7 @@ public:
          unsigned char down, unsigned char left,
          unsigned char rotation);
     Tile(const Tile& other);
+    Tile(const Tile& other, unsigned char rotation);
 
     bool operator==(const Tile& other);
 

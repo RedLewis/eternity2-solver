@@ -35,6 +35,15 @@ Tile::Tile(const Tile& other)
     _data.i_pattern[3] = other._data.i_pattern[3];
 }
 
+Tile::Tile(const Tile& other, unsigned char rotation)
+{
+    _rotation = rotation % 4;
+    _data.i_pattern[0] = other._data.i_pattern[0];
+    _data.i_pattern[1] = other._data.i_pattern[1];
+    _data.i_pattern[2] = other._data.i_pattern[2];
+    _data.i_pattern[3] = other._data.i_pattern[3];
+}
+
 bool Tile::operator==(const Tile& other) {
     if (this->_data.i_pattern[0] == other._data.i_pattern[0] ||
         this->_data.i_pattern[0] == other._data.i_pattern[1] ||

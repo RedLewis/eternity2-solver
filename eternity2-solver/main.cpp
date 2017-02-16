@@ -9,9 +9,11 @@
 #include <assert.h>
 #include <iomanip>
 #include "fpstimer.h"
+#include "board.h"
 
 int main()
 {
+    //Board::getSolvedEdgesBoards();
 
     FPSTimer timer;
 
@@ -19,7 +21,7 @@ int main()
     int oldBest = 0;
     int since = 0;
     srand(time(NULL));
-    Population population(3 );
+    Population population(10);
     while (population.getBestBoard().getFitness() != Board::MAX_FITNESS)
     {
         population.stepGeneration();
@@ -44,5 +46,5 @@ int main()
             oldBest = population.getBestBoard().getFitness();
             std::cerr << population.getBestBoard() << std::endl;
         }
-    };
+    }
 }

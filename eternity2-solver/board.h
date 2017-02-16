@@ -4,6 +4,8 @@
 #include <utility>
 #include "tile.h"
 #include "e2tiles.h"
+#include <list>
+#include <array>
 
 template <typename NumType>
 struct Point {
@@ -25,7 +27,7 @@ public:
         MAX_FITNESS = 1088
     };
 
-    Board();
+    Board(bool empty = false);
     Board(const Board& other);
     ~Board();
     int getFitness() const;
@@ -47,6 +49,10 @@ public:
     bool swapRectangle(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);
     bool rotateSquare(int posX, int posY, int size);
     static void unitTestSwap();
+
+    static void getSolvedEdgesBoards();
+private:
+    static void getSolvedEdgesForBoard(Board* refBoard, std::array<Tile*, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard);
 };
 
 std::ostream& operator<<(std::ostream& os, const Board& other);
