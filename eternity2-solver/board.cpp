@@ -456,6 +456,49 @@ void Board::swapAndRotateInnerRegionMutation(){
         rotateSquare(xb,yb,1);
     }
 }
+//to check...
+void Board::rawAndColumnInversionInnerRegionMutation()
+{
+    int direction = std::rand() % 2;
+    int x;
+    int y;
+    Tile** tmpa;
+    Tile** tmpb;
+
+    if (direction == 0)
+    {
+        x = 1 + (std::rand() % 14);
+        y = 1 + (std::rand() % 13);
+        tmpa = &(_tiles[y][x]);
+        tmpb = &(_tiles[y + 1][x]);
+    }else{
+        x = 1 + (std::rand() % 13);
+        y = 1 + (std::rand() % 14);
+        tmpa = &(_tiles[y][x]);
+        tmpb = &(_tiles[y][x + 1]);
+    }
+    Tile* tmp;
+    tmp = *tmpa;
+    *tmpa = *tmpb;
+    *tmpb = tmp;
+}
+//to check...
+void Board::inversionInnerRegionMutation()
+{
+    int x = 1 + (std::rand() % 13);
+    int y = 1 + (std::rand() % 13);
+    Tile** ta = &(_tiles[y][x]);
+    Tile** tb = &(_tiles[y][x + 1]);
+    Tile** tc = &(_tiles[y + 1][x]);
+    Tile** td = &(_tiles[y + 1][x + 1]);
+
+    Tile* tmpa = *ta;
+    Tile* tmpb = *tb;
+    *ta = *td;
+    *tb = *tc;
+    *tc = tmpb;
+    *td = tmpa;
+ }
 
 int Board::evaluate()
 {

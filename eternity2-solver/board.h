@@ -32,9 +32,12 @@ public:
     std::ostream& _stringify(std::ostream& os) const;
     static std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
     bool mutateOuter();
+    void inversionInnerRegionMutation();
     void rotateInnerRegionMutation();
     void swapInnerRegionMutation();
     void swapAndRotateInnerRegionMutation();
+    void rawAndColumnInversionInnerRegionMutation();
+
     int evaluate();
 
     bool isValid();
