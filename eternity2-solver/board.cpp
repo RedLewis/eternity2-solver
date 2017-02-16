@@ -76,7 +76,7 @@ Board::Board(bool empty)
 
             // Place inner tile
             else {
-                _tiles[y][x] = inners[innersIndex++];
+                _tiles[y][x] = NULL;//inners[innersIndex++];
             }
         }
     }
@@ -224,7 +224,7 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     return children;
 }
 
-bool Board::mutateOuter()
+void Board::mutateOuter()
 {
     int posA = 1 + (std::rand() % 14);
     int posB = 1 + (std::rand() % 14);
@@ -255,7 +255,6 @@ bool Board::mutateOuter()
     tmp = *tmpa;
     *tmpa = *tmpb;
     *tmpb = tmp;
-    return true;
 }
 
 bool Board::rotateSquare(int posX, int posY,int size)
@@ -278,16 +277,16 @@ bool Board::rotateSquare(int posX, int posY,int size)
     for ( int i = 0; i < size; ++i ) {
       for ( int j = i + 1; j < size; ++j ) {
         TileRef tmp = _tiles[posY + i][posX + j];
-        _tiles[posY + i][posX + j] = _tiles[posX + j][posY + i];
-        _tiles[posX + j][posY + i] = tmp;
+        _tiles[posY + i][posX + j] = _tiles[posY + j][posX + i];
+        _tiles[posY + j][posX + i] = tmp;
       }
     }
     // Swap the columns
     for ( int i = 0; i < size; ++i ) {
       for ( int j = 0; j < size/2; ++j ) {
          TileRef tmp = _tiles[posY + i][posX + j];
-        _tiles[posY + i][posX + j] = _tiles[posY + i][posY + (size-1-j)];
-        _tiles[posY + i][posY + (size-1-j)] = tmp;
+        _tiles[posY + i][posX + j] = _tiles[posY + i][posX + (size-1-j)];
+        _tiles[posY + i][posX + (size-1-j)] = tmp;
       }
     }
     return true;
@@ -717,6 +716,39 @@ void Board::unitTestSwap()
     assert(tmp.swapRectangle(4,7,1,4,11,6) == false);
     //*/
 
+}
+
+void Board::swapAndRotateAngleMutation() {
+    int size = 1 + (std::rand() % 7);
+    int ca = std::rand() % 4;
+    int cb = std::rand() % 4;
+
+    while(ca == cb) {
+        cb = std::rand() % 4;
+    }
+    int xa, xb,ya,yb;
+    switch(ca){
+        case 0:xa = 0; ya = 0; break;
+        case 3:xa = 16 - size; ya =  0; break;
+        case 2:xa = 16 - size; ya = 16 - size; break;
+        case 1:xa = 0; ya = 16 - size; break;
+    default: assert(false);
+    }
+    switch(cb){
+        case 0:xb = 0; yb = 0; break;
+        case 3:xb = 16 - size; yb = 0; break;
+        case 2:xb = 16 - size; yb = 16 - size; break;
+        case 1:xb = 0; yb = 16 - size; break;
+    default: assert(false);
+    }
+    swapRectangle(xa, ya, xb, yb, size, size);
+
+    for (int i = ca; (i % 4) != cb; ++i) {
+        rotateSquare(xa, ya, size);
+    }
+    for (int i = cb; (i % 4) != ca; ++i) {
+        rotateSquare(xb, yb, size);
+    }
 }
 
 #include <omp.h>

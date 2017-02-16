@@ -33,26 +33,26 @@ public:
     float getFitness() const;
     std::ostream& _stringify(std::ostream& os) const;
     static std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
-    bool mutateOuter();
+
+    void swapAndRotateAngle();
+    void mutateOuter();
+    void swapAndRotateAngleMutation();
     void inversionInnerRegionMutation();
     void rotateInnerRegionMutation();
     void swapInnerRegionMutation();
     void swapAndRotateInnerRegionMutation();
     void rawAndColumnInversionInnerRegionMutation();
+    bool swapRectangle(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);
+    bool rotateSquare(int posX, int posY, int size);  
 
     float evaluate();
-
     bool isValid();
-
-public:
-
-    bool swapRectangle(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);
-    bool rotateSquare(int posX, int posY, int size);
-    static void unitTestSwap();
-
-    static void getSolvedEdgesBoards();
 private:
     static void getSolvedEdgesForBoard(Board* refBoard, std::array<TileRef, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard);
+
+public:
+    static void unitTestSwap();
+    static void getSolvedEdgesBoards();
 };
 
 std::ostream& operator<<(std::ostream& os, const Board& other);
