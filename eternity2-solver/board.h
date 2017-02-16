@@ -19,7 +19,7 @@ struct Point {
 class Board
 {
     TileRef _tiles[16][16] = {};
-    int _fitness = -1;
+    float _fitness = -1;
 
 public:
 
@@ -30,7 +30,7 @@ public:
     Board(bool empty = false);
     Board(const Board& other);
     ~Board();
-    int getFitness() const;
+    float getFitness() const;
     std::ostream& _stringify(std::ostream& os) const;
     static std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
     bool mutateOuter();
@@ -40,7 +40,7 @@ public:
     void swapAndRotateInnerRegionMutation();
     void rawAndColumnInversionInnerRegionMutation();
 
-    int evaluate();
+    float evaluate();
 
     bool isValid();
 

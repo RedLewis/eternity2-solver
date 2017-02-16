@@ -18,11 +18,11 @@ int main()
     FPSTimer timer;
 
     //Board::unitTestSwap();;
-    int oldBest = 0;
+    float oldBest = 0;
     int since = 0;
     srand(time(NULL));
-    Population population(10000);
-    while (population.getBestBoard().getFitness() != Board::MAX_FITNESS && population.getGeneration() < 10)
+    Population population(3);
+    while (population.getBestBoard().getFitness() != Board::MAX_FITNESS)
     {
         population.stepGeneration();
         auto  t = timer.update();

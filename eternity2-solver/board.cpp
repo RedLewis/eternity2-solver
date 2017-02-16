@@ -99,7 +99,7 @@ Board::~Board()
 {
 }
 
-int Board::getFitness() const
+float Board::getFitness() const
 {
     return _fitness;
 }
@@ -460,7 +460,7 @@ void Board::inversionInnerRegionMutation()
     *td = tmpa;
  }
 
-int Board::evaluate()
+float Board::evaluate()
 {
     TileRef topCell;
     TileRef rightCell;
@@ -480,22 +480,24 @@ int Board::evaluate()
             downCell = (y == 15) ? TileRef::empty : _tiles[y + 1][x];
             leftCell = (x == 0) ? TileRef::empty : _tiles[y][x - 1];
             //Check for matching edges
+            float xFactor = 1 + std::log((x < 8) ? (8 - x) : (x - 7));
+            float yFactor = 1 + std::log((y < 8) ? (8 - y) : (y - 7));
             if (currentCell.getTop() == TileRef::EDGE_VALUE && topCell == NULL)
-                _fitness += 2;
+                _fitness += xFactor * 2;
             else if (currentCell.getTop() != TileRef::EDGE_VALUE && topCell != NULL && currentCell.getTop() == topCell.getDown())
-                _fitness += 1;
+                _fitness += xFactor;
             if (currentCell.getRight() == TileRef::EDGE_VALUE && rightCell == NULL)
-                _fitness += 2;
+                _fitness += yFactor * 2;
             else if (currentCell.getRight() != TileRef::EDGE_VALUE && rightCell != NULL && currentCell.getRight() == rightCell.getLeft())
-                _fitness += 1;
+                _fitness += yFactor;
             if (currentCell.getDown() == TileRef::EDGE_VALUE && downCell == NULL)
-                _fitness += 2;
+                _fitness += xFactor * 2;
             else if (currentCell.getDown() != TileRef::EDGE_VALUE && downCell != NULL && currentCell.getDown() == downCell.getTop())
-                _fitness += 1;
+                _fitness += xFactor;
             if (currentCell.getLeft() == TileRef::EDGE_VALUE && leftCell == NULL)
-                _fitness += 2;
+                _fitness += yFactor * 2;
             else if (currentCell.getLeft() != TileRef::EDGE_VALUE && leftCell != NULL && currentCell.getLeft() == leftCell.getRight())
-                _fitness += 1;
+                _fitness += yFactor;
         }
     }
 
