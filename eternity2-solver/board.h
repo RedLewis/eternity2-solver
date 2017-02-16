@@ -34,7 +34,6 @@ public:
     std::ostream& _stringify(std::ostream& os) const;
     static std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
 
-    void swapAndRotateAngle();
     void mutateOuter();
     void swapAndRotateAngleMutation();
     void inversionInnerRegionMutation();

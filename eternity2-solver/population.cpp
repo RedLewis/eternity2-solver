@@ -70,6 +70,8 @@ void Population::mutate()
         _boards[i]->swapAndRotateInnerRegionMutation();
         if (std::rand() % 2)
         _boards[i]->mutateOuter();
+        if (std::rand() % 2)
+        _boards[i]->swapAndRotateAngleMutation();
 
     }
 }
