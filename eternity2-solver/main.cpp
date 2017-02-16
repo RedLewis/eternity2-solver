@@ -28,22 +28,6 @@ void showStat(Population* pop, float t, int since){
 
 int main()
 {
-    srand(time(NULL));
-    Board tmp;
-    tmp.swapAndRotateAngleMutation();
-    //tmp.swapRectangle(0,0,11,0,5,5);
-    //tmp.rotateSquare(0,0,6);
-    //tmp.rotateSquare(0,0,6);
-    //tmp.rotateSquare(0,0,6);
-    std::cerr << tmp << std::endl;
-    /*
-    int ca = 4;
-    while (ca--){
-        tmp.rotateSquare(6,0,10);
-        std::cerr << tmp << std::endl;
-    }
-*/
-    exit(0);
     //Board::getSolvedEdgesBoards();
     std::cout << std::endl << std::endl
     << "###############################" << std::endl
