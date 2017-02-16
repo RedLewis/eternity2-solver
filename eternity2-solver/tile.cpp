@@ -76,3 +76,4 @@ unsigned char Tile::getRotation() const {
 void Tile::setRotation(unsigned char rotation) {
     _rotation = rotation % 4;
 }
+

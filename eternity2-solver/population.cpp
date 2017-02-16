@@ -62,9 +62,14 @@ void Population::mutate()
 {
     //Skip best (which is number 0)
     for (unsigned int i = 1; i < _boards.size(); ++i) {
+
+        if (std::rand() % 2)
         _boards[i]->rotateInnerRegionMutation();
+        if (std::rand() % 2)
         _boards[i]->swapInnerRegionMutation();
+        if (std::rand() % 2)
         _boards[i]->swapAndRotateInnerRegionMutation();
+        _boards[i]->mutateOuter();
     }
 }
 

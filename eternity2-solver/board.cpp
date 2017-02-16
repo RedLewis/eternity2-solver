@@ -55,11 +55,11 @@ Board::Board(bool empty)
             if (E2TILES[i][0] == 0)
                 borders[bordersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], 0);
             else if (E2TILES[i][1] == 0)
-                corners[cornersIndex++] = new Tile(E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], 0);
+                borders[bordersIndex++] = new Tile(E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], 0);
             else if (E2TILES[i][2] == 0)
-                corners[cornersIndex++] = new Tile(E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], 0);
+                borders[bordersIndex++] = new Tile(E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], 0);
             else if (E2TILES[i][3] == 0)
-                corners[cornersIndex++] = new Tile(E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], 0);
+                borders[bordersIndex++] = new Tile(E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], 0);
             else
                 std::cerr << "cannot add tile to board: invalid edge tile" << std::endl;
         }
@@ -278,7 +278,6 @@ bool Board::mutateOuter()
 
     Tile** tmpa;
     Tile** tmpb;
-
     switch (colA){
         case 0: tmpa = &_tiles[0][posA]; break;
         case 1: tmpa = &_tiles[15][posA]; break;
@@ -292,7 +291,6 @@ bool Board::mutateOuter()
         case 2: tmpb = &_tiles[posB][0]; break;
         case 3: tmpb = &_tiles[posB][15]; break;
     }
-
     int orientation = (*tmpa)->getRotation();
     (*tmpa)->setRotation((*tmpb)->getRotation());
     (*tmpb)->setRotation(orientation);
@@ -300,7 +298,6 @@ bool Board::mutateOuter()
     tmp = *tmpa;
     *tmpa = *tmpb;
     *tmpb = tmp;
-
     return true;
 }
 
