@@ -76,7 +76,7 @@ Board::Board(bool empty)
 
             // Place inner tile
             else {
-                _tiles[y][x] = NULL;//inners[innersIndex++];
+                _tiles[y][x] = inners[innersIndex++];
             }
         }
     }
