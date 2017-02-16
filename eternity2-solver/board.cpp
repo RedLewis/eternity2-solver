@@ -238,6 +238,7 @@ bool Board::mutateOuter()
         case 1: tmpa = &_tiles[15][posA]; break;
         case 2: tmpa = &_tiles[posA][0]; break;
         case 3: tmpa = &_tiles[posA][15]; break;
+        default: assert(false);
     }
 
     switch (colB){
@@ -245,6 +246,7 @@ bool Board::mutateOuter()
         case 1: tmpb = &_tiles[15][posB]; break;
         case 2: tmpb = &_tiles[posB][0]; break;
         case 3: tmpb = &_tiles[posB][15]; break;
+        default: assert(false);
     }
     int orientation = tmpa->getRotation();
     tmpa->setRotation(tmpb->getRotation());
