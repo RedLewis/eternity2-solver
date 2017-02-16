@@ -2,26 +2,13 @@
 #define CELL_H
 
 #include "aligned.h"
+#include "e2tiles.h"
 
-class Tile : public Aligned<Alignment::SSE>
+class TileRef : public Aligned<Alignment::SSE>
 {
 private:
 
-    struct Data : public Aligned<Alignment::SSE> {
-        struct Pattern {
-            unsigned char top;
-            unsigned char right;
-            unsigned char down;
-            unsigned char left;
-        };
-        union {
-            __m128 xmm;
-            unsigned int i_pattern[4];
-            Pattern s_pattern[4];
-        };
-    };
-
-    Data _data;
+    const TileData* _ptr = NULL;
     unsigned char _rotation = 0; //From 0 to 3
 
 public:
@@ -30,21 +17,27 @@ public:
         EDGE_VALUE = 0
     };
 
+    static const TileRef empty;
+
     //Creates a cell using top right down and left patterns.
     //Will also create all 4 possible rotations of these patterns
-    Tile(unsigned char top, unsigned char right,
-         unsigned char down, unsigned char left,
-         unsigned char rotation);
-    Tile(const Tile& other);
-    Tile(const Tile& other, unsigned char rotation);
+    TileRef();
+    TileRef(const TileData* ptr);
+    TileRef(const TileData* ptr, unsigned char rotation);
+    TileRef(const TileRef& other);
+    TileRef(const TileRef& other, unsigned char rotation);
 
-    bool operator==(const Tile& other);
+    bool operator==(const TileRef& other) const;
+    bool operator!=(const TileRef& other) const;
+    TileRef& operator=(const TileRef& other);
 
     unsigned char getTop() const;
     unsigned char getRight() const;
     unsigned char getDown() const;
     unsigned char getLeft() const;
+    const TileData* getTile() const;
     unsigned char getRotation() const;
+    void setTile(const TileData* ptr);
     void setRotation(unsigned char rotation);
 
 };

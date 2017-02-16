@@ -21,12 +21,11 @@ int main()
     int oldBest = 0;
     int since = 0;
     srand(time(NULL));
-    Population population(100);
-    while (population.getBestBoard().getFitness() != Board::MAX_FITNESS)
+    Population population(10000);
+    while (population.getBestBoard().getFitness() != Board::MAX_FITNESS && population.getGeneration() < 10)
     {
         population.stepGeneration();
         auto  t = timer.update();
-        if (population.getGeneration() % 1000 == 0){
         std::cout << std::setw(5) << std::left << "Gen:"
                   << std::setw(12) << std::left << population.getGeneration()
                   << std::setw(6) << std::left << "Best:"
@@ -39,7 +38,6 @@ int main()
                   << std::setw(8) << std::left << population.getWorstBoard().getFitness()
                   << "DeltaT: " << t
                   << std::endl;
-        }
         ++since;;
         if (oldBest < population.getBestBoard().getFitness()){
             since = 0;

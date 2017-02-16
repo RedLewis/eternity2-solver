@@ -18,7 +18,7 @@ struct Point {
 
 class Board
 {
-    Tile *_tiles[16][16] = {};
+    TileRef _tiles[16][16] = {};
     int _fitness = -1;
 
 public:
@@ -52,7 +52,7 @@ public:
 
     static void getSolvedEdgesBoards();
 private:
-    static void getSolvedEdgesForBoard(Board* refBoard, std::array<Tile*, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard);
+    static void getSolvedEdgesForBoard(Board* refBoard, std::array<TileRef, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard);
 };
 
 std::ostream& operator<<(std::ostream& os, const Board& other);

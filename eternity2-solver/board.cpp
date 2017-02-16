@@ -19,59 +19,23 @@ Board::Board(bool empty)
         return;
     }
 
-    std::array<Tile*, 196> inners;
+    std::array<TileRef, 196> inners;
     int innersIndex = 0;
-    std::array<Tile*, 56> borders;
+    std::array<TileRef, 56> borders;
     int bordersIndex = 0;
-    std::array<Tile*, 4> corners;
+    std::array<TileRef, 4> corners;
     int cornersIndex = 0;
 
     // Sort tiles in borders, conners and inners arrays
-    for(int i = 0; i < 256; ++i) {
-        unsigned char edges = 0;
-        edges += (E2TILES[i][0] == Tile::EDGE_VALUE) ? 1 : 0;
-        edges += (E2TILES[i][1] == Tile::EDGE_VALUE) ? 1 : 0;
-        edges += (E2TILES[i][2] == Tile::EDGE_VALUE) ? 1 : 0;
-        edges += (E2TILES[i][3] == Tile::EDGE_VALUE) ? 1 : 0;
-
-        // Add corner tile to array
-        if (edges == 2) {
-            // Set first edge to top and second edge to right
-            if (E2TILES[i][0] == 0 && E2TILES[i][1] == 0)
-                corners[cornersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], 0);
-            else if (E2TILES[i][1] == 0 && E2TILES[i][2] == 0)
-                corners[cornersIndex++] = new Tile(E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], 0);
-            else if (E2TILES[i][2] == 0 && E2TILES[i][3] == 0)
-                corners[cornersIndex++] = new Tile(E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], 0);
-            else if (E2TILES[i][3] == 0 && E2TILES[i][0] == 0)
-                corners[cornersIndex++] = new Tile(E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], 0);
-            else
-                std::cerr << "cannot add tile to board: invalid corner tile" << std::endl;
-        }
-
-        // Add border tile to array
-        else if (edges == 1) {
-            // Set edge to top
-            if (E2TILES[i][0] == 0)
-                borders[bordersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], 0);
-            else if (E2TILES[i][1] == 0)
-                borders[bordersIndex++] = new Tile(E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], 0);
-            else if (E2TILES[i][2] == 0)
-                borders[bordersIndex++] = new Tile(E2TILES[i][2], E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], 0);
-            else if (E2TILES[i][3] == 0)
-                borders[bordersIndex++] = new Tile(E2TILES[i][3], E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], 0);
-            else
-                std::cerr << "cannot add tile to board: invalid edge tile" << std::endl;
-        }
-
-        // Add inner tile to array
-        else if (edges == 0) {
-            inners[innersIndex++] = new Tile(E2TILES[i][0], E2TILES[i][1], E2TILES[i][2], E2TILES[i][3], rand() % 4);
-        }
-        else
-            std::cerr << "cannot add tile to board: invalid tile" << std::endl;
+    for(const TileData& tileData: E2TILES.corners){
+        corners[cornersIndex++].setTile(&tileData);
     }
-
+    for(const TileData& tileData: E2TILES.borders){
+        borders[bordersIndex++].setTile(&tileData);
+    }
+    for(const TileData& tileData: E2TILES.inners){
+        inners[innersIndex++].setTile(&tileData);
+    }
     // Shuffles tile arrays
     std::shuffle(corners.begin(), corners.end(), std::default_random_engine(rand()));
     std::shuffle(borders.begin(), borders.end(), std::default_random_engine(rand()));
@@ -87,26 +51,26 @@ Board::Board(bool empty)
             // Place corner tile
             if ((x == 0 && y == 0) || (x == 0 && y == 15) || (x == 15 && y == 0) || (x == 15 && y == 15)) {
                 if (x == 15 && y == 0)
-                    corners[cornersIndex]->setRotation(0);
+                    corners[cornersIndex].setRotation(0);
                 else if (x == 15 && y == 15)
-                    corners[cornersIndex]->setRotation(1);
+                    corners[cornersIndex].setRotation(1);
                 else if (x == 0 && y == 15)
-                    corners[cornersIndex]->setRotation(2);
+                    corners[cornersIndex].setRotation(2);
                 else if (x == 0 && y == 0)
-                    corners[cornersIndex]->setRotation(3);
+                    corners[cornersIndex].setRotation(3);
                 _tiles[y][x] = corners[cornersIndex++];
             }
 
             // Place edge tile
             else if (x == 0 || x == 15 || y == 0 || y == 15) {
                 if (y == 0)
-                    borders[bordersIndex]->setRotation(0);
+                    borders[bordersIndex].setRotation(0);
                 else if (x == 15)
-                    borders[bordersIndex]->setRotation(1);
+                    borders[bordersIndex].setRotation(1);
                 else if (y == 15)
-                    borders[bordersIndex]->setRotation(2);
+                    borders[bordersIndex].setRotation(2);
                 else if (x == 0)
-                    borders[bordersIndex]->setRotation(3);
+                    borders[bordersIndex].setRotation(3);
                 _tiles[y][x] = borders[bordersIndex++];
             }
 
@@ -125,8 +89,7 @@ Board::Board(const Board& other)
 {
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
-            if (other._tiles[y][x] != NULL)
-                _tiles[y][x] = new Tile(*(other._tiles[y][x]));
+            _tiles[y][x] = other._tiles[y][x];
         }
     }
     _fitness = other._fitness;
@@ -134,12 +97,6 @@ Board::Board(const Board& other)
 
 Board::~Board()
 {
-    for (int y = 0; y < 16; ++y) {
-        for (int x = 0; x < 16; ++x) {
-            if (_tiles[y][x] != NULL)
-                delete _tiles[y][x];
-        }
-    }
 }
 
 int Board::getFitness() const
@@ -167,10 +124,9 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
             bool removed = false;
             for (int yA = 0; removed == false && (yA < 16); ++yA) {
                 for (int xA = 0; removed == false && (xA < 16); ++xA) {
-                    if (children.first->_tiles[yA][xA] != NULL
-                        && (*(children.first->_tiles[yA][xA]) == *(parentB._tiles[yB][xB]))) {
-                        delete children.first->_tiles[yA][xA];
-                        children.first->_tiles[yA][xA] = NULL;
+                    if (children.first->_tiles[yA][xA] != TileRef::empty
+                        && (children.first->_tiles[yA][xA] == parentB._tiles[yB][xB])) {
+                        children.first->_tiles[yA][xA] = TileRef::empty;
                         removed = true;
                     }
                 }
@@ -184,10 +140,9 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
             bool removed = false;
             for (int yB = 0; removed == false && (yB < 16); ++yB) {
                 for (int xB = 0; removed == false && (xB < 16); ++xB) {
-                    if (children.second->_tiles[yB][xB] != NULL
-                        && (*(children.second->_tiles[yB][xB]) == *(parentA._tiles[yA][xA]))) {
-                        delete children.second->_tiles[yB][xB];
-                        children.second->_tiles[yB][xB] = NULL;
+                    if (children.second->_tiles[yB][xB] != TileRef::empty
+                        && (children.second->_tiles[yB][xB] == parentA._tiles[yA][xA])) {
+                        children.second->_tiles[yB][xB] = TileRef::empty;
                         removed = true;
                     }
                 }
@@ -198,23 +153,23 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     //Add the tiles remaining in both regions to two separate lists: list A and list B
 
     //Add the tiles remaining in child A's region to list A
-    std::list<Tile*> listA;
+    std::list<TileRef> listA;
     for (int y = pointA.y; y < (pointA.y + height); ++y) {
         for (int x = pointA.x; x < (pointA.x + width); ++x) {
-            if (children.first->_tiles[y][x] != NULL) {
+            if (children.first->_tiles[y][x] != TileRef::empty) {
                 listA.push_back(children.first->_tiles[y][x]);
-                children.first->_tiles[y][x] = NULL;
+                children.first->_tiles[y][x] = TileRef::empty;
             }
         }
     }
 
     //Add the tiles remaining in child B's region to list B
-    std::list<Tile*> listB;
+    std::list<TileRef> listB;
     for (int y = pointB.y; y < (pointB.y + height); ++y) {
         for (int x = pointB.x; x < (pointB.x + width); ++x) {
-            if (children.second->_tiles[y][x] != NULL) {
+            if (children.second->_tiles[y][x] != TileRef::empty) {
                 listB.push_back(children.second->_tiles[y][x]);
-                children.second->_tiles[y][x] = NULL;
+                children.second->_tiles[y][x]= TileRef::empty;
             }
         }
     }
@@ -231,11 +186,11 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
                 indexA.x = pointA.x + x;
                 indexB.x = pointB.x + x;
                 //Copy to child A’s region all tiles that in parent B’s region
-                assert(children.first->_tiles[indexA.y][indexA.x] == NULL);
-                children.first->_tiles[indexA.y][indexA.x] = new Tile(*(parentB._tiles[indexB.y][indexB.x]));
+                assert(children.first->_tiles[indexA.y][indexA.x] == TileRef::empty);
+                children.first->_tiles[indexA.y][indexA.x] = parentB._tiles[indexB.y][indexB.x];
                 //Copy to child B’s region all tiles that in parent A’s region
-                assert(children.second->_tiles[indexB.y][indexB.x] == NULL);
-                children.second->_tiles[indexB.y][indexB.x] = new Tile(*(parentA._tiles[indexA.y][indexA.x]));
+                assert(children.second->_tiles[indexB.y][indexB.x] == TileRef::empty);
+                children.second->_tiles[indexB.y][indexB.x] = parentA._tiles[indexA.y][indexA.x];
             }
         }
     }
@@ -243,7 +198,7 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     //Fill the empty places in child A with the tiles from list A
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
-            if (children.first->_tiles[y][x] == NULL) {
+            if (children.first->_tiles[y][x] == TileRef::empty) {
                 assert(listA.size() > 0);
                 children.first->_tiles[y][x] = listA.front();
                 listA.pop_front();
@@ -255,7 +210,7 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     //Fill the empty places in child B with the tiles from list B
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
-            if (children.second->_tiles[y][x] == NULL) {
+            if (children.second->_tiles[y][x] == TileRef::empty) {
                 assert(listB.size() > 0);
                 children.second->_tiles[y][x] = listB.front();
                 listB.pop_front();
@@ -276,8 +231,8 @@ bool Board::mutateOuter()
     int colA = std::rand() % 4;
     int colB = std::rand() % 4;
 
-    Tile** tmpa;
-    Tile** tmpb;
+    TileRef* tmpa;
+    TileRef* tmpb;
     switch (colA){
         case 0: tmpa = &_tiles[0][posA]; break;
         case 1: tmpa = &_tiles[15][posA]; break;
@@ -291,10 +246,10 @@ bool Board::mutateOuter()
         case 2: tmpb = &_tiles[posB][0]; break;
         case 3: tmpb = &_tiles[posB][15]; break;
     }
-    int orientation = (*tmpa)->getRotation();
-    (*tmpa)->setRotation((*tmpb)->getRotation());
-    (*tmpb)->setRotation(orientation);
-    Tile* tmp;
+    int orientation = tmpa->getRotation();
+    tmpa->setRotation(tmpb->getRotation());
+    tmpb->setRotation(orientation);
+    TileRef tmp;
     tmp = *tmpa;
     *tmpa = *tmpb;
     *tmpb = tmp;
@@ -314,13 +269,13 @@ bool Board::rotateSquare(int posX, int posY,int size)
 
     for ( int i = 0; i < size; ++i ) {
       for ( int j = 0; j < size; ++j ) {
-          _tiles[posY + i][posX + j]->setRotation(_tiles[posY + i][posX + j]->getRotation() + 1);
+          _tiles[posY + i][posX + j].setRotation(_tiles[posY + i][posX + j].getRotation() + 1);
         }
     }
     // Transpose the matrix
     for ( int i = 0; i < size; ++i ) {
       for ( int j = i + 1; j < size; ++j ) {
-        Tile* tmp = _tiles[posY + i][posX + j];
+        TileRef tmp = _tiles[posY + i][posX + j];
         _tiles[posY + i][posX + j] = _tiles[posX + j][posY + i];
         _tiles[posX + j][posY + i] = tmp;
       }
@@ -328,7 +283,7 @@ bool Board::rotateSquare(int posX, int posY,int size)
     // Swap the columns
     for ( int i = 0; i < size; ++i ) {
       for ( int j = 0; j < size/2; ++j ) {
-         Tile* tmp = _tiles[posY + i][posX + j];
+         TileRef tmp = _tiles[posY + i][posX + j];
         _tiles[posY + i][posX + j] = _tiles[posY + i][posY + (size-1-j)];
         _tiles[posY + i][posY + (size-1-j)] = tmp;
       }
@@ -393,7 +348,7 @@ bool Board::swapRectangle(int posXa, int posYa,int posXb, int posYb, int sizeX, 
     }
 
 
-    Tile *cpy;
+    TileRef cpy;
     for ( int i = 0; i < sizeY; ++i ) {
       for ( int j = 0; j < sizeX; ++j ) {
           cpy = _tiles[posYb + i][posXb + j];
@@ -467,8 +422,8 @@ void Board::rawAndColumnInversionInnerRegionMutation()
     int direction = std::rand() % 2;
     int x;
     int y;
-    Tile** tmpa;
-    Tile** tmpb;
+    TileRef* tmpa;
+    TileRef* tmpb;
 
     if (direction == 0)
     {
@@ -482,7 +437,7 @@ void Board::rawAndColumnInversionInnerRegionMutation()
         tmpa = &(_tiles[y][x]);
         tmpb = &(_tiles[y][x + 1]);
     }
-    Tile* tmp;
+    TileRef tmp;
     tmp = *tmpa;
     *tmpa = *tmpb;
     *tmpb = tmp;
@@ -492,13 +447,13 @@ void Board::inversionInnerRegionMutation()
 {
     int x = 1 + (std::rand() % 13);
     int y = 1 + (std::rand() % 13);
-    Tile** ta = &(_tiles[y][x]);
-    Tile** tb = &(_tiles[y][x + 1]);
-    Tile** tc = &(_tiles[y + 1][x]);
-    Tile** td = &(_tiles[y + 1][x + 1]);
+    TileRef* ta = &(_tiles[y][x]);
+    TileRef* tb = &(_tiles[y][x + 1]);
+    TileRef* tc = &(_tiles[y + 1][x]);
+    TileRef* td = &(_tiles[y + 1][x + 1]);
 
-    Tile* tmpa = *ta;
-    Tile* tmpb = *tb;
+    TileRef tmpa = *ta;
+    TileRef tmpb = *tb;
     *ta = *td;
     *tb = *tc;
     *tc = tmpb;
@@ -507,39 +462,39 @@ void Board::inversionInnerRegionMutation()
 
 int Board::evaluate()
 {
-    const Tile* topCell;
-    const Tile* rightCell;
-    const Tile* downCell;
-    const Tile* leftCell;
-    const Tile* currentCell;
+    TileRef topCell;
+    TileRef rightCell;
+    TileRef downCell;
+    TileRef leftCell;
+    TileRef currentCell;
 
     _fitness = 0;
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             //Get neighbor cells
             currentCell = _tiles[y][x];
-            if (currentCell == NULL)
+            if (currentCell == TileRef::empty)
                 continue;
-            topCell = (y == 0) ? NULL : _tiles[y - 1][x];
-            rightCell = (x == 15) ? NULL : _tiles[y][x + 1];
-            downCell = (y == 15) ? NULL : _tiles[y + 1][x];
-            leftCell = (x == 0) ? NULL : _tiles[y][x - 1];
+            topCell = (y == 0) ? TileRef::empty : _tiles[y - 1][x];
+            rightCell = (x == 15) ? TileRef::empty : _tiles[y][x + 1];
+            downCell = (y == 15) ? TileRef::empty : _tiles[y + 1][x];
+            leftCell = (x == 0) ? TileRef::empty : _tiles[y][x - 1];
             //Check for matching edges
-            if (currentCell->getTop() == Tile::EDGE_VALUE && topCell == NULL)
+            if (currentCell.getTop() == TileRef::EDGE_VALUE && topCell == NULL)
                 _fitness += 2;
-            else if (currentCell->getTop() != Tile::EDGE_VALUE && topCell != NULL && currentCell->getTop() == topCell->getDown())
+            else if (currentCell.getTop() != TileRef::EDGE_VALUE && topCell != NULL && currentCell.getTop() == topCell.getDown())
                 _fitness += 1;
-            if (currentCell->getRight() == Tile::EDGE_VALUE && rightCell == NULL)
+            if (currentCell.getRight() == TileRef::EDGE_VALUE && rightCell == NULL)
                 _fitness += 2;
-            else if (currentCell->getRight() != Tile::EDGE_VALUE && rightCell != NULL && currentCell->getRight() == rightCell->getLeft())
+            else if (currentCell.getRight() != TileRef::EDGE_VALUE && rightCell != NULL && currentCell.getRight() == rightCell.getLeft())
                 _fitness += 1;
-            if (currentCell->getDown() == Tile::EDGE_VALUE && downCell == NULL)
+            if (currentCell.getDown() == TileRef::EDGE_VALUE && downCell == NULL)
                 _fitness += 2;
-            else if (currentCell->getDown() != Tile::EDGE_VALUE && downCell != NULL && currentCell->getDown() == downCell->getTop())
+            else if (currentCell.getDown() != TileRef::EDGE_VALUE && downCell != NULL && currentCell.getDown() == downCell.getTop())
                 _fitness += 1;
-            if (currentCell->getLeft() == Tile::EDGE_VALUE && leftCell == NULL)
+            if (currentCell.getLeft() == TileRef::EDGE_VALUE && leftCell == NULL)
                 _fitness += 2;
-            else if (currentCell->getLeft() != Tile::EDGE_VALUE && leftCell != NULL && currentCell->getLeft() == leftCell->getRight())
+            else if (currentCell.getLeft() != TileRef::EDGE_VALUE && leftCell != NULL && currentCell.getLeft() == leftCell.getRight())
                 _fitness += 1;
         }
     }
@@ -553,14 +508,14 @@ bool Board::isValid() {
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             //check if _tiles[y][x] is unique
-            if (_tiles[y][x] == NULL)
+            if (_tiles[y][x] == TileRef::empty)
                 return false;
             for (int yp = 0; yp < 16; ++yp) {
                 for (int xp = 0; xp < 16; ++xp) {
                     if (yp != y && xp != x) {
-                        if (_tiles[yp][xp] == NULL)
+                        if (_tiles[yp][xp] == TileRef::empty)
                             return false;
-                        if (*(_tiles[y][x]) == *(_tiles[yp][xp]))
+                        if (_tiles[y][x] == _tiles[yp][xp])
                             return false;
                     }
                 }
@@ -613,14 +568,14 @@ std::ostream& Board::_stringify(std::ostream& os)const
                     grn = grn_b;
                 }
                 //os << "  ";
-                if (_tiles[boardLine][boardRaw] == NULL){
+                if (_tiles[boardLine][boardRaw] == TileRef::empty){
                     os << "\e[41m";
                     os << "  " << "  " << "  ";
                     os << rst;
                 }else{
                 if (cellLine == 0){
                     os << bgr << "  ";
-                    if (_tiles[boardLine][boardRaw]->getTop() == 0){
+                    if (_tiles[boardLine][boardRaw].getTop() == 0){
                         if (boardLine == 0){
                             //match
                             os << grn;
@@ -628,16 +583,16 @@ std::ostream& Board::_stringify(std::ostream& os)const
                             os << blu;
                         }
                     }else{
-                        if (_tiles[boardLine - 1][boardRaw] != NULL && boardLine != 0 && _tiles[boardLine][boardRaw]->getTop() == _tiles[boardLine - 1][boardRaw]->getDown()){
+                        if (_tiles[boardLine - 1][boardRaw] != TileRef::empty && boardLine != 0 && _tiles[boardLine][boardRaw].getTop() == _tiles[boardLine - 1][boardRaw].getDown()){
                             os << grn;
                         }else{
                             os << red;
                         }
                     }
-                    os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw]->getTop();
+                    os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw].getTop();
                     os << bgr << "  ";
                 }else if(cellLine == 1){
-                    if (_tiles[boardLine][boardRaw]->getLeft() == 0){
+                    if (_tiles[boardLine][boardRaw].getLeft() == 0){
                         if (boardRaw == 0){
                             //match
                             os << grn;
@@ -645,15 +600,15 @@ std::ostream& Board::_stringify(std::ostream& os)const
                             os << blu;
                         }
                     }else{
-                        if (_tiles[boardLine][boardRaw - 1] != NULL && boardRaw != 0 && _tiles[boardLine][boardRaw]->getLeft() == _tiles[boardLine][boardRaw - 1]->getRight()){
+                        if (_tiles[boardLine][boardRaw - 1] != TileRef::empty && boardRaw != 0 && _tiles[boardLine][boardRaw].getLeft() == _tiles[boardLine][boardRaw - 1].getRight()){
                             os << grn;
                         }else{
                             os << red;
                         }
                     }
-                    os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw]->getLeft();
+                    os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw].getLeft();
                     os << bgr << "  ";
-                    if (_tiles[boardLine][boardRaw]->getRight() == 0){
+                    if (_tiles[boardLine][boardRaw].getRight() == 0){
                         if (boardRaw == 15){
                             //match
                             os << grn;
@@ -661,15 +616,15 @@ std::ostream& Board::_stringify(std::ostream& os)const
                             os << blu;
                         }
                     }else{
-                        if (_tiles[boardLine][boardRaw + 1] != NULL && boardRaw < 15 && _tiles[boardLine][boardRaw]->getRight() == _tiles[boardLine][boardRaw + 1]->getLeft()){
+                        if (_tiles[boardLine][boardRaw + 1] != TileRef::empty && boardRaw < 15 && _tiles[boardLine][boardRaw].getRight() == _tiles[boardLine][boardRaw + 1].getLeft()){
                             os << grn;
                         }else{
                             os << red;
                         }                    }
-                     os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw]->getRight();
+                     os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw].getRight();
                 }else{
                     os << bgr << "  ";
-                    if (_tiles[boardLine][boardRaw]->getDown() == 0){
+                    if (_tiles[boardLine][boardRaw].getDown() == 0){
                         if (boardLine ==15){
                             //match
                             os << grn;
@@ -678,13 +633,13 @@ std::ostream& Board::_stringify(std::ostream& os)const
                         }
                     }else{
 
-                        if (_tiles[boardLine + 1][boardRaw] != NULL && boardLine < 15 && _tiles[boardLine][boardRaw]->getDown() == _tiles[boardLine + 1][boardRaw]->getTop()){
+                        if (_tiles[boardLine + 1][boardRaw] != TileRef::empty && boardLine < 15 && _tiles[boardLine][boardRaw].getDown() == _tiles[boardLine + 1][boardRaw].getTop()){
                             os << grn;
                         }else{
                             os << red;
                         }
                    }
-                   os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw]->getDown();
+                   os << std::fixed << std::setw( 2 ) << std::setfill('0') << (int)_tiles[boardLine][boardRaw].getDown();
                    os << bgr <<"  ";
                 }
                 }
@@ -766,8 +721,8 @@ void Board::getSolvedEdgesBoards() {
     //Create Board 0, the reference board out of six boards
     //Clear board moving corner and border tiles in respective arrays
     std::vector<Board*> refBoards(6);
-    std::array<Tile*, 56> borderTiles;
-    std::array<Tile*, 4> cornerTiles;
+    std::array<TileRef, 56> borderTiles;
+    std::array<TileRef, 4> cornerTiles;
     {
         unsigned int borderTilesIndex = 0;
         unsigned int cornerTilesIndex = 0;
@@ -778,24 +733,23 @@ void Board::getSolvedEdgesBoards() {
 
                 //Delete inner tile
                 if ((x > 0 && x < 15) && (y > 0 && y < 15)) {
-                    if (refBoards[0]->_tiles[y][x] != NULL) {
-                        delete refBoards[0]->_tiles[y][x];
-                        refBoards[0]->_tiles[y][x] = NULL;
+                    if (refBoards[0]->_tiles[y][x] != TileRef::empty) {
+                        refBoards[0]->_tiles[y][x] = TileRef::empty;
                     }
                 }
 
                 //Move corner tile to list
                 else if ((x == 0 && y == 0) || (x == 15 && y == 0) || (x == 0 && y == 15) || (x == 15 && y == 15)) {
-                    refBoards[0]->_tiles[y][x]->setRotation(0);
+                    refBoards[0]->_tiles[y][x].setRotation(0);
                     cornerTiles[cornerTilesIndex++] = refBoards[0]->_tiles[y][x];
-                    refBoards[0]->_tiles[y][x] = NULL;
+                    refBoards[0]->_tiles[y][x] = TileRef::empty;
                 }
 
                 //Move border tile to list
                 else {
-                    refBoards[0]->_tiles[y][x]->setRotation(0);
+                    refBoards[0]->_tiles[y][x].setRotation(0);
                     borderTiles[borderTilesIndex++] = refBoards[0]->_tiles[y][x];
-                    refBoards[0]->_tiles[y][x] = NULL;
+                    refBoards[0]->_tiles[y][x] = TileRef::empty;
                 }
             }
         }
@@ -807,35 +761,35 @@ void Board::getSolvedEdgesBoards() {
             refBoards[i] = new Board(true);
         }
         //Board0
-        refBoards[0]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
-        refBoards[0]->_tiles[15][15] = new Tile(*cornerTiles[1], 1);
-        refBoards[0]->_tiles[15][0] = new Tile(*cornerTiles[2], 2);
-        refBoards[0]->_tiles[0][0] = new Tile(*cornerTiles[3], 3);
+        refBoards[0]->_tiles[0][15] = cornerTiles[0];
+        refBoards[0]->_tiles[15][15] = cornerTiles[1];
+        refBoards[0]->_tiles[15][0] = cornerTiles[2];
+        refBoards[0]->_tiles[0][0] = cornerTiles[3];
         //Board1
-        refBoards[1]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
-        refBoards[1]->_tiles[15][15] = new Tile(*cornerTiles[2], 1);
-        refBoards[1]->_tiles[15][0] = new Tile(*cornerTiles[1], 2);
-        refBoards[1]->_tiles[0][0] = new Tile(*cornerTiles[3], 3);
+        refBoards[1]->_tiles[0][15] = cornerTiles[0];
+        refBoards[1]->_tiles[15][15] = cornerTiles[2];
+        refBoards[1]->_tiles[15][0] = cornerTiles[1];
+        refBoards[1]->_tiles[0][0] = cornerTiles[3];
         //Board2
-        refBoards[2]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
-        refBoards[2]->_tiles[15][15] = new Tile(*cornerTiles[1], 1);
-        refBoards[2]->_tiles[15][0] = new Tile(*cornerTiles[3], 2);
-        refBoards[2]->_tiles[0][0] = new Tile(*cornerTiles[2], 3);
+        refBoards[2]->_tiles[0][15] = cornerTiles[0];
+        refBoards[2]->_tiles[15][15] = cornerTiles[1];
+        refBoards[2]->_tiles[15][0] = cornerTiles[3];
+        refBoards[2]->_tiles[0][0] = cornerTiles[2];
         //Board3
-        refBoards[3]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
-        refBoards[3]->_tiles[15][15] = new Tile(*cornerTiles[2], 1);
-        refBoards[3]->_tiles[15][0] = new Tile(*cornerTiles[3], 2);
-        refBoards[3]->_tiles[0][0] = new Tile(*cornerTiles[1], 3);
+        refBoards[3]->_tiles[0][15] = cornerTiles[0];
+        refBoards[3]->_tiles[15][15] = cornerTiles[2];
+        refBoards[3]->_tiles[15][0] = cornerTiles[3];
+        refBoards[3]->_tiles[0][0] = cornerTiles[1];
         //Board4
-        refBoards[4]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
-        refBoards[4]->_tiles[15][15] = new Tile(*cornerTiles[3], 1);
-        refBoards[4]->_tiles[15][0] = new Tile(*cornerTiles[1], 2);
-        refBoards[4]->_tiles[0][0] = new Tile(*cornerTiles[2], 3);
+        refBoards[4]->_tiles[0][15] = cornerTiles[0];
+        refBoards[4]->_tiles[15][15] = cornerTiles[3];
+        refBoards[4]->_tiles[15][0] = cornerTiles[1];
+        refBoards[4]->_tiles[0][0] = cornerTiles[2];
         //Board5
-        refBoards[5]->_tiles[0][15] = new Tile(*cornerTiles[0], 0);
-        refBoards[5]->_tiles[15][15] = new Tile(*cornerTiles[3], 1);
-        refBoards[5]->_tiles[15][0] = new Tile(*cornerTiles[2], 2);
-        refBoards[5]->_tiles[0][0] = new Tile(*cornerTiles[1], 3);
+        refBoards[5]->_tiles[0][15] = cornerTiles[0];
+        refBoards[5]->_tiles[15][15] = cornerTiles[3];
+        refBoards[5]->_tiles[15][0] = cornerTiles[2];
+        refBoards[5]->_tiles[0][0] = cornerTiles[1];
     }
 
     //Solve refBoards into all possible edges solutions
@@ -849,23 +803,20 @@ void Board::getSolvedEdgesBoards() {
     }
 
     //Clear data
-    for (Tile* tile : borderTiles)
-        delete tile;
-    for (Tile* tile : cornerTiles)
-        delete tile;
     for (Board* board : refBoards)
         delete board;
 
     std::cout << "Done" << std::endl;
 }
 
-void Board::getSolvedEdgesForBoard(Board* refBoard, std::array<Tile*, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard) {
+void Board::getSolvedEdgesForBoard(Board* refBoard, std::array<TileRef, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard) {
+    /*
     unsigned char nextValue = refBoard->_tiles[0][0]->getRight();
-    std::list<Tile*> candidateTiles;
+    std::list<TileRef*> candidateTiles;
 
     std::cout << (int)nextValue << std::endl;
-    for (Tile* borderTile : borderTiles) {
+    for (TileRef* borderTile : borderTiles) {
         std::cout << (int)borderTile->getLeft() << std::endl;
     }
-
+*/
 }

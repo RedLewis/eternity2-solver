@@ -75,6 +75,8 @@ void Population::mutate()
 
 void Population::evaluate() {
     _averageFitness = 0;
+    _best = NULL;
+    _worst = NULL;
     for (Board* board : _boards){
         board->evaluate();
         _averageFitness += board->getFitness();
