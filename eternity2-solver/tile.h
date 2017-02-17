@@ -22,22 +22,21 @@ public:
     //Creates a cell using top right down and left patterns.
     //Will also create all 4 possible rotations of these patterns
     TileRef();
-    TileRef(const TileData* ptr);
-    TileRef(const TileData* ptr, unsigned char rotation);
+    TileRef(const TileData& tileData);
+    TileRef(const TileData& tileData, unsigned char rotation);
     TileRef(const TileRef& other);
     TileRef(const TileRef& other, unsigned char rotation);
 
     bool operator==(const TileRef& other) const;
     bool operator!=(const TileRef& other) const;
     TileRef& operator=(const TileRef& other);
+    TileRef& operator=(const TileData& tileData);
 
     unsigned char getTop() const;
     unsigned char getRight() const;
     unsigned char getDown() const;
     unsigned char getLeft() const;
-    const TileData* getTile() const;
     unsigned char getRotation() const;
-    void setTile(const TileData* ptr);
     void setRotation(unsigned char rotation);
 
 };

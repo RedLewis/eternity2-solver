@@ -1,20 +1,20 @@
 #include "tile.h"
 #include <iostream>
 
-TileRef const TileRef::empty(NULL);
+TileRef const TileRef::empty;
 
 TileRef::TileRef() :
     _ptr(NULL),
     _rotation(0)
 {}
 
-TileRef::TileRef(const TileData* ptr) :
-    _ptr(ptr),
+TileRef::TileRef(const TileData& tileData) :
+    _ptr(&tileData),
     _rotation(0)
 {}
 
-TileRef::TileRef(const TileData* ptr, unsigned char rotation) :
-    _ptr(ptr),
+TileRef::TileRef(const TileData& tileData, unsigned char rotation) :
+    _ptr(&tileData),
     _rotation(rotation % 4)
 {}
 
@@ -43,6 +43,12 @@ TileRef& TileRef::operator=(const TileRef& other) {
     return *this;
 }
 
+TileRef& TileRef::operator=(const TileData& tileData) {
+    this->_ptr = &tileData;
+    return *this;
+}
+
+
 
 unsigned char TileRef::getTop() const {
     return _ptr->s_pattern[_rotation].top;
@@ -62,14 +68,6 @@ unsigned char TileRef::getLeft() const {
 
 unsigned char TileRef::getRotation() const {
     return _rotation;
-}
-
-const TileData* TileRef::getTile() const {
-    return _ptr;
-}
-
-void TileRef::setTile(const TileData* ptr) {
-    _ptr = ptr;
 }
 
 void TileRef::setRotation(unsigned char rotation) {
