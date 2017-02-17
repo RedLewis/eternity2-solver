@@ -39,9 +39,15 @@ void Population::selection()
     std::pair<Board*, Board*> children;
     //Skip best (which is number 0)
     do {
+        ///*
         Board* parentA = tournamentSelection(2);
         Board* parentB = tournamentSelection(2);
         children = Board::regionExchangeCrossover(*parentA, *parentB);
+        //*/
+        /*
+        children.first = new Board(*_best);
+        children.second = new Board(*_best);
+        //*/
         newBoards.push_back(children.first);
         if (newBoards.size() < _boards.size()) {
             newBoards.push_back(children.second);
@@ -61,29 +67,18 @@ void Population::selection()
 void Population::mutate()
 {
     //Skip best (which is number 0)
-    for (unsigned int i = 1; i < _boards.size(); ++i) {
-        Board* b = _boards[i];
-        ///*
-        switch(std::rand() % 5){
-        case 0:b->rotateInnerRegionMutation();break;
-        case 1:b->swapInnerRegionMutation();break;
-        case 2:b->swapAndRotateInnerRegionMutation();break;
-        case 3:b->mutateOuter();break;
-        case 4:b->swapAndRotateAngleMutation();break;
+    for (Board* b : _boards){
+        if (b == _best)
+            continue;
+
+        switch(std::rand() % 6){
+            case 5:b->rotateInnerRegionMutation();break;
+            case 4:b->swapInnerRegionMutation();break;
+            case 3:b->swapAndRotateInnerRegionMutation();break;
+            case 2:b->simpleOuterMutation();break;
+            case 1:b->swapChunkOuterMutation();break;
+            case 0:b->swapAndRotateAngleMutation();break;
         }
-//*/
-/*
-        if (std::rand() % 2)
-            b->rotateInnerRegionMutation();
-        if (std::rand() % 2)
-            b->swapInnerRegionMutation();
-        if (std::rand() % 2)
-            b->swapAndRotateInnerRegionMutation();
-        if (std::rand() % 2)
-            b->mutateOuter();
-        if (std::rand() % 2)
-            b->swapAndRotateAngleMutation();
-//*/
     }
 }
 
