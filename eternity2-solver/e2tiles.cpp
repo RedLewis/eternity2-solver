@@ -260,7 +260,7 @@ static const unsigned char E2TILEVALUES[256][4] = {
 
                     */
 
-   //Corner
+   ///*//Corner
 
     {0, 35, 10  ,0},
     {2, 31 , 0  ,0},
@@ -330,7 +330,7 @@ static const unsigned char E2TILEVALUES[256][4] = {
     {37 , 8 , 0 ,18},
     {39, 18 , 0  ,8},
     {30 , 8 , 0 ,17},
-
+//*/
     /*//Corner
 
    {60, 0, 0, 1},
@@ -398,7 +398,8 @@ static const unsigned char E2TILEVALUES[256][4] = {
     {56, 0, 57, 99},
     {57, 0, 58, 99},
     {58, 0, 59, 99},
-    {59, 0, 60, 99},*/
+    {59, 0, 60, 99},
+    //*/
 
     //Inners
 

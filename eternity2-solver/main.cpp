@@ -30,7 +30,8 @@ void showStat(Population* pop, float t, int since, bool found){
 
 int main()
 {
-    //Board::getSolvedEdgesBoards();
+    Board::getSolvedEdgesBoards();
+    exit(0);
     std::cout << std::endl << std::endl
     << "###############################" << std::endl
     << "            restart            " << std::endl

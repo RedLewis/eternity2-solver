@@ -755,7 +755,8 @@ void Board::swapAndRotateAngleMutation() {
         rotateSquare(xb, yb, size);
     }
 }
-
+#include <atomic>
+static std::atomic_uint nbr_sol;
 std::list<Board*> Board::getSolvedEdgesBoards() {
 
     //Create the 6 boards with all corner combinations
@@ -795,13 +796,15 @@ std::list<Board*> Board::getSolvedEdgesBoards() {
 
     //Solve refBoards into all possible edges solutions
     std::list<Board*> solvedEdgesBoards;
-//#pragma omp parallel for num_threads(6) schedule(static)
+    nbr_sol = 0;
+#pragma omp parallel for num_threads(6) schedule(static)
     for (int i = 0; i < 6; ++i) {
         std::list<Board*> solvedEdgesBoardsForBoard;
         getSolvedEdgesForBoard(refBoards[i], Point<int>(0, 0), solvedEdgesBoardsForBoard);
-//#pragma omp critical
+#pragma omp critical
         solvedEdgesBoards.splice(solvedEdgesBoards.end(), solvedEdgesBoardsForBoard);
     }
+    std::cerr << "FINAL nbr sol: " << nbr_sol << std::endl;
 
     std::cout << "Done: " << solvedEdgesBoards.size() << " solutions" << std::endl;
     //Free Data
@@ -864,9 +867,22 @@ void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::
             else                                            --newEdgeIndex.y;
             //If nextEdgeIndex is back to the start: we successfuly completed a board!
             if (newEdgeIndex.x == 0 && newEdgeIndex.y == 0) {
-                solvedEdgesBoardsForBoard.push_back(new Board(currBoard));
-                std::cout << solvedEdgesBoardsForBoard.size() << std::endl;
-                std::cout << currBoard << std::endl;
+                //solvedEdgesBoardsForBoard.push_back(new Board(currBoard));
+                nbr_sol += 1;
+                #pragma omp critical
+                if((nbr_sol%2000) == 0) {
+                    {
+                        TileRef tmpTile = currBoard._tiles[0][1];
+                        tmpTile.setRotation(0);
+                        std::cerr << "current nbr sol: " << nbr_sol << std::endl;
+                        std::cerr << "top:   " << tmpTile.getTop() << std::endl;
+                        std::cerr << "down:  " << tmpTile.getDown() << std::endl;
+                        std::cerr << "left:  " << tmpTile.getLeft() << std::endl;
+                        std::cerr << "right: " << tmpTile.getRight() << std::endl;
+                        std::cerr << std::endl;
+                    }
+                }
+
             }
             //Else we continue completing the board
             else {
