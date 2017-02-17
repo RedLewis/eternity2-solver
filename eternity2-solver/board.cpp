@@ -28,13 +28,13 @@ Board::Board(bool empty)
 
     // Sort tiles in borders, conners and inners arrays
     for(const TileData& tileData: E2TILES.corners){
-        corners[cornersIndex++].setTile(&tileData);
+        corners[cornersIndex++] = tileData;
     }
     for(const TileData& tileData: E2TILES.borders){
-        borders[bordersIndex++].setTile(&tileData);
+        borders[bordersIndex++] = tileData;
     }
     for(const TileData& tileData: E2TILES.inners){
-        inners[innersIndex++].setTile(&tileData);
+        inners[innersIndex++] = tileData;
     }
     // Shuffles tile arrays
     std::shuffle(corners.begin(), corners.end(), std::default_random_engine(rand()));
@@ -483,21 +483,21 @@ float Board::evaluate()
             //Check for matching edges
             float xFactor = 1 + std::log((x < 8) ? (8 - x) : (x - 7));
             float yFactor = 1 + std::log((y < 8) ? (8 - y) : (y - 7));
-            if (currentCell.getTop() == TileRef::EDGE_VALUE && topCell == NULL)
+            if (currentCell.getTop() == TileRef::EDGE_VALUE && topCell == TileRef::empty)
                 _fitness += xFactor * 2;
-            else if (currentCell.getTop() != TileRef::EDGE_VALUE && topCell != NULL && currentCell.getTop() == topCell.getDown())
+            else if (currentCell.getTop() != TileRef::EDGE_VALUE && topCell != TileRef::empty && currentCell.getTop() == topCell.getDown())
                 _fitness += xFactor;
-            if (currentCell.getRight() == TileRef::EDGE_VALUE && rightCell == NULL)
+            if (currentCell.getRight() == TileRef::EDGE_VALUE && rightCell == TileRef::empty)
                 _fitness += yFactor * 2;
-            else if (currentCell.getRight() != TileRef::EDGE_VALUE && rightCell != NULL && currentCell.getRight() == rightCell.getLeft())
+            else if (currentCell.getRight() != TileRef::EDGE_VALUE && rightCell != TileRef::empty && currentCell.getRight() == rightCell.getLeft())
                 _fitness += yFactor;
-            if (currentCell.getDown() == TileRef::EDGE_VALUE && downCell == NULL)
+            if (currentCell.getDown() == TileRef::EDGE_VALUE && downCell == TileRef::empty)
                 _fitness += xFactor * 2;
-            else if (currentCell.getDown() != TileRef::EDGE_VALUE && downCell != NULL && currentCell.getDown() == downCell.getTop())
+            else if (currentCell.getDown() != TileRef::EDGE_VALUE && downCell != TileRef::empty && currentCell.getDown() == downCell.getTop())
                 _fitness += xFactor;
-            if (currentCell.getLeft() == TileRef::EDGE_VALUE && leftCell == NULL)
+            if (currentCell.getLeft() == TileRef::EDGE_VALUE && leftCell == TileRef::empty)
                 _fitness += yFactor * 2;
-            else if (currentCell.getLeft() != TileRef::EDGE_VALUE && leftCell != NULL && currentCell.getLeft() == leftCell.getRight())
+            else if (currentCell.getLeft() != TileRef::EDGE_VALUE && leftCell != TileRef::empty && currentCell.getLeft() == leftCell.getRight())
                 _fitness += yFactor;
         }
     }
