@@ -32,7 +32,7 @@ public:
     std::ostream& _stringify(std::ostream& os) const;
     static std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
 
-    void mutateOuter();
+    void simpleOuterMutation();
     void swapAndRotateAngleMutation();
     void inversionInnerRegionMutation();
     void rotateInnerRegionMutation();
@@ -41,7 +41,7 @@ public:
     void rawAndColumnInversionInnerRegionMutation();
     bool swapRectangle(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);
     bool rotateSquare(int posX, int posY, int size);  
-
+    void swapChunkOuterMutation();
     float evaluate();
     bool isValid();
     float cmp(const Board& other) const;

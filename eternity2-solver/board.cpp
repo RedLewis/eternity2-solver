@@ -224,7 +224,7 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
     return children;
 }
 
-void Board::mutateOuter()
+void Board::simpleOuterMutation()
 {
     int posA = 1 + (std::rand() % 14);
     int posB = 1 + (std::rand() % 14);
@@ -863,6 +863,28 @@ float Board::cmp(const Board& other) const
     res /= 256;
     return res;
 }
+
+void Board::swapChunkOuterMutation() {
+    return;
+    int size = 1 + (std::rand() % 14);
+    int ca = std::rand() % 4;
+    int pa = std::rand() % (16 - size);
+    int cb = std::rand() % 4;
+    int pb = std::rand() % (16 - size);
+
+    while (ca == cb) {
+        cb == std::rand() % 4;
+    }
+    for (int i = ca; (i % 4) != cb; ++i) {
+
+    }
+    for (int i = cb; (i % 4) != ca; ++i) {
+
+    }
+
+}
+
+
 
 void Board::getSolvedEdgesForBoard(Board* refBoard, std::array<TileRef, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard) {
     /*

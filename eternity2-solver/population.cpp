@@ -71,11 +71,12 @@ void Population::mutate()
         if (b == _best)
             continue;
 
-        switch(std::rand() % 5){
-            case 4:b->rotateInnerRegionMutation();break;
-            case 3:b->swapInnerRegionMutation();break;
-            case 2:b->swapAndRotateInnerRegionMutation();break;
-            case 1:b->mutateOuter();break;
+        switch(std::rand() % 6){
+            case 5:b->rotateInnerRegionMutation();break;
+            case 4:b->swapInnerRegionMutation();break;
+            case 3:b->swapAndRotateInnerRegionMutation();break;
+            case 2:b->simpleOuterMutation();break;
+            case 1:b->swapChunkOuterMutation();break;
             case 0:b->swapAndRotateAngleMutation();break;
         }
     }
