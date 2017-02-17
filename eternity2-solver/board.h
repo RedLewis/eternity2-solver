@@ -23,9 +23,7 @@ class Board
 
 public:
 
-    enum  {
-        MAX_FITNESS = 1088
-    };
+    static constexpr float MAX_FITNESS = 2530.22f;
 
     Board(bool empty = false);
     Board(const Board& other);
