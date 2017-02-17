@@ -474,6 +474,7 @@ float Board::evaluate()
         for (int x = 0; x < 16; ++x) {
             //Get neighbor cells
             currentCell = _tiles[y][x];
+
             if (currentCell == TileRef::empty)
                 continue;
             topCell = (y == 0) ? TileRef::empty : _tiles[y - 1][x];
@@ -481,27 +482,32 @@ float Board::evaluate()
             downCell = (y == 15) ? TileRef::empty : _tiles[y + 1][x];
             leftCell = (x == 0) ? TileRef::empty : _tiles[y][x - 1];
             //Check for matching edges
-            float xFactor = 1 + std::log((x < 8) ? (8 - x) : (x - 7));
-            float yFactor = 1 + std::log((y < 8) ? (8 - y) : (y - 7));
+            float xFactor = ((x < 8) ? (8 - x) : (x - 7));
+            float yFactor = ((y < 8) ? (8 - y) : (y - 7));
+            // evaluation less aggressive
+            float factor = std::log(xFactor + yFactor);
+
+            // evaluation more aggressive
+            //float factor = xFactor + yFactor;
+
             if (currentCell.getTop() == TileRef::EDGE_VALUE && topCell == TileRef::empty)
-                _fitness += xFactor * 2;
+                _fitness += factor * 2;
             else if (currentCell.getTop() != TileRef::EDGE_VALUE && topCell != TileRef::empty && currentCell.getTop() == topCell.getDown())
-                _fitness += xFactor;
+                _fitness += factor;
             if (currentCell.getRight() == TileRef::EDGE_VALUE && rightCell == TileRef::empty)
-                _fitness += yFactor * 2;
+                _fitness += factor * 2;
             else if (currentCell.getRight() != TileRef::EDGE_VALUE && rightCell != TileRef::empty && currentCell.getRight() == rightCell.getLeft())
-                _fitness += yFactor;
+                _fitness += factor;
             if (currentCell.getDown() == TileRef::EDGE_VALUE && downCell == TileRef::empty)
-                _fitness += xFactor * 2;
+                _fitness += factor * 2;
             else if (currentCell.getDown() != TileRef::EDGE_VALUE && downCell != TileRef::empty && currentCell.getDown() == downCell.getTop())
-                _fitness += xFactor;
+                _fitness += factor;
             if (currentCell.getLeft() == TileRef::EDGE_VALUE && leftCell == TileRef::empty)
-                _fitness += yFactor * 2;
+                _fitness += factor * 2;
             else if (currentCell.getLeft() != TileRef::EDGE_VALUE && leftCell != TileRef::empty && currentCell.getLeft() == leftCell.getRight())
-                _fitness += yFactor;
+                _fitness += factor;
         }
     }
-
     return _fitness;
 }
 
@@ -842,6 +848,20 @@ void Board::getSolvedEdgesBoards() {
         delete board;
 
     std::cout << "Done" << std::endl;
+}
+
+float Board::cmp(const Board& other) const
+{
+    float res = 0;
+    for (int j = 0; j < 16; ++j) {
+        for (int i = 0; i < 16; ++i) {
+            if (_tiles[j][i] != other._tiles[j][i]){
+                ++res;
+            }
+        }
+    }
+    res /= 256;
+    return res;
 }
 
 void Board::getSolvedEdgesForBoard(Board* refBoard, std::array<TileRef, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard) {

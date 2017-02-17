@@ -44,6 +44,7 @@ public:
 
     float evaluate();
     bool isValid();
+    float cmp(const Board& other) const;
 private:
     static void getSolvedEdgesForBoard(Board* refBoard, std::array<TileRef, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard);
 
