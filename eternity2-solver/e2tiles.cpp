@@ -518,6 +518,7 @@ static const unsigned char E2TILEVALUES[256][4] = {
     {19, 6, 6, 11},
     {19, 10, 13, 6},
     {12, 20, 11, 10},
+
 };
 
 static int e2TileIndex = 0;
@@ -567,7 +568,7 @@ TileData::TileData(){
     s_pattern[i % 4].right = third;
     s_pattern[i % 4].down = fourth ;
     s_pattern[i % 4].left = first;
-    e2TileIndex = (e2TileIndex + 1) % E2TILES.all.size();
+    e2TileIndex = (e2TileIndex + 1) % 256;
 
 }
 

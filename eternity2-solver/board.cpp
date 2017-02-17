@@ -808,9 +808,6 @@ void Board::getSolvedEdgesBoards() {
 
 void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::list<Board*>& solvedEdgesBoardsForBoard) {
 
-    std::cout << "STEP IN edgeIndex = " << edgeIndex.x << " " << edgeIndex.y << std::endl;
-    std::cout << currBoard << std::endl;
-
     //Skip corner
     if ((edgeIndex.x == 0 && edgeIndex.y == 0) ||
         (edgeIndex.x == 0 && edgeIndex.y == 15) ||
@@ -824,37 +821,33 @@ void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::
     }
 
     //Find tiles that match with prev tile (and next corner tile if next to it)
-    for (const TileData& tileData : E2TILES.borders) {
-        TileRef tile(tileData);
+    for (TileRef tile : E2TILES.borders) {
         bool match = false;
         int prevValue = -1;
         int nextValue = -1;
         if (edgeIndex.y == 0 && edgeIndex.x < 15) {
-            prevValue = currBoard._tiles[edgeIndex.x - 1][edgeIndex.y].getRight();
-            if (currBoard._tiles[edgeIndex.x + 1][edgeIndex.y] != TileRef::empty)
-                nextValue = currBoard._tiles[edgeIndex.x + 1][edgeIndex.y].getLeft();
-            match = (tile.getLeft() == prevValue) && ((nextValue != -1) ? (tile.getRight() == nextValue) : 1);
-            std::cout << edgeIndex.x << " HHH " << edgeIndex.y << std::endl;
-            std::cout << prevValue << " XXX " << nextValue << std::endl;
+            tile.setRotation(0);
+            prevValue = currBoard._tiles[edgeIndex.y][edgeIndex.x - 1].getRight();
+            nextValue = currBoard._tiles[edgeIndex.y][edgeIndex.x + 1].getLeft();
+            match = (tile.getLeft() == prevValue) && ((nextValue != -1) ? (tile.getRight() == nextValue) : true);
         } else if (edgeIndex.x == 15 && edgeIndex.y < 15) {
-            prevValue = currBoard._tiles[edgeIndex.x][edgeIndex.y - 1].getDown();
-            if (currBoard._tiles[edgeIndex.x][edgeIndex.y + 1] != TileRef::empty)
-                nextValue = currBoard._tiles[edgeIndex.x][edgeIndex.y + 1].getTop();
-            match = (tile.getTop() == prevValue) && ((nextValue != -1) ? (tile.getDown() == nextValue) : 1);
+            tile.setRotation(1);
+            prevValue = currBoard._tiles[edgeIndex.y - 1][edgeIndex.x].getDown();
+            nextValue = currBoard._tiles[edgeIndex.y + 1][edgeIndex.x].getTop();
+            match = (tile.getTop() == prevValue) && ((nextValue != -1) ? (tile.getDown() == nextValue) : true);
         } else if (edgeIndex.y == 15 && edgeIndex.x > 0) {
-            prevValue = currBoard._tiles[edgeIndex.x + 1][edgeIndex.y].getLeft();
-            if (currBoard._tiles[edgeIndex.x - 1][edgeIndex.y] != TileRef::empty)
-                nextValue = currBoard._tiles[edgeIndex.x - 1][edgeIndex.y].getRight();
-            match = (tile.getRight() == prevValue) && ((nextValue != -1) ? (tile.getLeft() == nextValue) : 1);
+            tile.setRotation(2);
+            prevValue = currBoard._tiles[edgeIndex.y][edgeIndex.x + 1].getLeft();
+            nextValue = currBoard._tiles[edgeIndex.y][edgeIndex.x - 1].getRight();
+            match = (tile.getRight() == prevValue) && ((nextValue != -1) ? (tile.getLeft() == nextValue) : true);
         } else {
-            prevValue = currBoard._tiles[edgeIndex.x][edgeIndex.y + 1].getTop();
-            if (currBoard._tiles[edgeIndex.x][edgeIndex.y - 1] != TileRef::empty)
-            nextValue = currBoard._tiles[edgeIndex.x][edgeIndex.y - 1].getDown();
-            match = (tile.getDown() == prevValue) && ((nextValue != -1) ? (tile.getTop() == nextValue) : 1);
+            tile.setRotation(3);
+            prevValue = currBoard._tiles[edgeIndex.y + 1][edgeIndex.x].getTop();
+            nextValue = currBoard._tiles[edgeIndex.y - 1][edgeIndex.x].getDown();
+            match = (tile.getDown() == prevValue) && ((nextValue != -1) ? (tile.getTop() == nextValue) : true);
         }
 
         if (match && !isTileInBoardEdge(currBoard, tile)) {
-            std::cout << "Matching piece found!" << std::endl;
             //Place tile on board
             currBoard._tiles[edgeIndex.y][edgeIndex.x] = tile;
             //Increment index into a new variable
@@ -865,8 +858,8 @@ void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::
             else                                            --newEdgeIndex.y;
             //If nextEdgeIndex is back to the start: we successfuly completed a board!
             if (newEdgeIndex.x == 0 && newEdgeIndex.y == 0) {
-                std::cout << "Board done!" << std::endl;
                 solvedEdgesBoardsForBoard.push_back(new Board(currBoard));
+                std::cout << solvedEdgesBoardsForBoard.size() << std::endl;
             }
             //Else we continue completing the board
             else {
@@ -877,7 +870,6 @@ void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::
 
         }
     }
-    std::cout << "Deleting board." << std::endl;
 }
 
 bool Board::isTileInBoardEdge(const Board& board, const TileRef& tile) {
