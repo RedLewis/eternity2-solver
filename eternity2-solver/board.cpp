@@ -882,15 +882,17 @@ void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::
 bool Board::isTileInBoardEdge(const Board& board, const TileRef& tile) {
     int x = 0;
     int y = 0;
+
     do {
         if (board._tiles[y][x] == tile)
             return true;
         //Increment 2D Index following the edge
+
         if (y == 0 && x < 15) ++x;
         else if (x == 15 && y < 15) ++y;
         else if (y == 15 && x > 0) --x;
         else --y;
-    } while (x != 0 && y != 0);
+    } while (!(x == 0 && y == 0));
     return false;
 }
 
