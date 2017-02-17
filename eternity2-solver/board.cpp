@@ -750,108 +750,140 @@ void Board::swapAndRotateAngleMutation() {
     }
 }
 
-#include <omp.h>
 void Board::getSolvedEdgesBoards() {
 
-    //Create Board 0, the reference board out of six boards
-    //Clear board moving corner and border tiles in respective arrays
-    std::vector<Board*> refBoards(6);
-    std::array<TileRef, 56> borderTiles;
-    std::array<TileRef, 4> cornerTiles;
-    {
-        unsigned int borderTilesIndex = 0;
-        unsigned int cornerTilesIndex = 0;
-        refBoards[0] = new Board();
-        refBoards[0]->_fitness = 0;
-        for (int y = 0; y < 16; ++y) {
-            for (int x = 0; x < 16; ++x) {
-
-                //Delete inner tile
-                if ((x > 0 && x < 15) && (y > 0 && y < 15)) {
-                    if (refBoards[0]->_tiles[y][x] != TileRef::empty) {
-                        refBoards[0]->_tiles[y][x] = TileRef::empty;
-                    }
-                }
-
-                //Move corner tile to list
-                else if ((x == 0 && y == 0) || (x == 15 && y == 0) || (x == 0 && y == 15) || (x == 15 && y == 15)) {
-                    refBoards[0]->_tiles[y][x].setRotation(0);
-                    cornerTiles[cornerTilesIndex++] = refBoards[0]->_tiles[y][x];
-                    refBoards[0]->_tiles[y][x] = TileRef::empty;
-                }
-
-                //Move border tile to list
-                else {
-                    refBoards[0]->_tiles[y][x].setRotation(0);
-                    borderTiles[borderTilesIndex++] = refBoards[0]->_tiles[y][x];
-                    refBoards[0]->_tiles[y][x] = TileRef::empty;
-                }
-            }
-        }
-    }
-
     //Create the 6 boards with all corner combinations
+    std::vector<Board> refBoards(6, true);
     {
-        for (int i = 1; i < 6; ++i) {
-            refBoards[i] = new Board(true);
-        }
         //Board0
-        refBoards[0]->_tiles[0][15] = cornerTiles[0];
-        refBoards[0]->_tiles[15][15] = cornerTiles[1];
-        refBoards[0]->_tiles[15][0] = cornerTiles[2];
-        refBoards[0]->_tiles[0][0] = cornerTiles[3];
+        refBoards[0]._tiles[0][15] = TileRef(E2TILES.corners[0], 0);
+        refBoards[0]._tiles[15][15] = TileRef(E2TILES.corners[1], 1);
+        refBoards[0]._tiles[15][0] = TileRef(E2TILES.corners[2], 2);
+        refBoards[0]._tiles[0][0] = TileRef(E2TILES.corners[3], 3);
         //Board1
-        refBoards[1]->_tiles[0][15] = cornerTiles[0];
-        refBoards[1]->_tiles[15][15] = cornerTiles[2];
-        refBoards[1]->_tiles[15][0] = cornerTiles[1];
-        refBoards[1]->_tiles[0][0] = cornerTiles[3];
+        refBoards[1]._tiles[0][15] = TileRef(E2TILES.corners[0], 0);
+        refBoards[1]._tiles[15][15] = TileRef(E2TILES.corners[2], 1);
+        refBoards[1]._tiles[15][0] = TileRef(E2TILES.corners[1], 2);
+        refBoards[1]._tiles[0][0] = TileRef(E2TILES.corners[3], 3);
         //Board2
-        refBoards[2]->_tiles[0][15] = cornerTiles[0];
-        refBoards[2]->_tiles[15][15] = cornerTiles[1];
-        refBoards[2]->_tiles[15][0] = cornerTiles[3];
-        refBoards[2]->_tiles[0][0] = cornerTiles[2];
+        refBoards[2]._tiles[0][15] = TileRef(E2TILES.corners[0], 0);
+        refBoards[2]._tiles[15][15] = TileRef(E2TILES.corners[1], 1);
+        refBoards[2]._tiles[15][0] = TileRef(E2TILES.corners[3], 2);
+        refBoards[2]._tiles[0][0] = TileRef(E2TILES.corners[2], 3);
         //Board3
-        refBoards[3]->_tiles[0][15] = cornerTiles[0];
-        refBoards[3]->_tiles[15][15] = cornerTiles[2];
-        refBoards[3]->_tiles[15][0] = cornerTiles[3];
-        refBoards[3]->_tiles[0][0] = cornerTiles[1];
+        refBoards[3]._tiles[0][15] = TileRef(E2TILES.corners[0], 0);
+        refBoards[3]._tiles[15][15] = TileRef(E2TILES.corners[2], 1);
+        refBoards[3]._tiles[15][0] = TileRef(E2TILES.corners[3], 2);
+        refBoards[3]._tiles[0][0] = TileRef(E2TILES.corners[1], 3);
         //Board4
-        refBoards[4]->_tiles[0][15] = cornerTiles[0];
-        refBoards[4]->_tiles[15][15] = cornerTiles[3];
-        refBoards[4]->_tiles[15][0] = cornerTiles[1];
-        refBoards[4]->_tiles[0][0] = cornerTiles[2];
+        refBoards[4]._tiles[0][15] = TileRef(E2TILES.corners[0], 0);
+        refBoards[4]._tiles[15][15] = TileRef(E2TILES.corners[3], 1);
+        refBoards[4]._tiles[15][0] = TileRef(E2TILES.corners[1], 2);
+        refBoards[4]._tiles[0][0] = TileRef(E2TILES.corners[2], 3);
         //Board5
-        refBoards[5]->_tiles[0][15] = cornerTiles[0];
-        refBoards[5]->_tiles[15][15] = cornerTiles[3];
-        refBoards[5]->_tiles[15][0] = cornerTiles[2];
-        refBoards[5]->_tiles[0][0] = cornerTiles[1];
+        refBoards[5]._tiles[0][15] = TileRef(E2TILES.corners[0], 0);
+        refBoards[5]._tiles[15][15] = TileRef(E2TILES.corners[3], 1);
+        refBoards[5]._tiles[15][0] = TileRef(E2TILES.corners[2], 2);
+        refBoards[5]._tiles[0][0] = TileRef(E2TILES.corners[1], 3);
     }
 
     //Solve refBoards into all possible edges solutions
     std::list<Board*> solvedEdgesBoards;
 //#pragma omp parallel for num_threads(6) schedule(static)
-    for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 1; ++i) {
         std::list<Board*> solvedEdgesBoardsForBoard;
-        getSolvedEdgesForBoard(refBoards[i], borderTiles, solvedEdgesBoardsForBoard);
+        getSolvedEdgesForBoard(refBoards[i], Point<int>(0, 0), solvedEdgesBoardsForBoard);
 //#pragma omp critical
         solvedEdgesBoards.splice(solvedEdgesBoards.end(), solvedEdgesBoardsForBoard);
     }
-
-    //Clear data
-    for (Board* board : refBoards)
-        delete board;
-
     std::cout << "Done" << std::endl;
 }
 
-void Board::getSolvedEdgesForBoard(Board* refBoard, std::array<TileRef, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard) {
-    /*
-    unsigned char nextValue = refBoard->_tiles[0][0]->getRight();
-    std::list<TileRef*> candidateTiles;
+void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::list<Board*>& solvedEdgesBoardsForBoard) {
 
-    std::cout << (int)nextValue << std::endl;
-    for (TileRef* borderTile : borderTiles) {
-        std::cout << (int)borderTile->getLeft() << std::endl;
+    std::cout << "STEP IN edgeIndex = " << edgeIndex.x << " " << edgeIndex.y << std::endl;
+    std::cout << currBoard << std::endl;
+
+    //Skip corner
+    if ((edgeIndex.x == 0 && edgeIndex.y == 0) ||
+        (edgeIndex.x == 0 && edgeIndex.y == 15) ||
+        (edgeIndex.x == 15 && edgeIndex.y == 15) ||
+        (edgeIndex.x == 15 && edgeIndex.y == 0)) {
+        if (edgeIndex.y == 0 && edgeIndex.x < 15)       ++edgeIndex.x;
+        else if (edgeIndex.x == 15 && edgeIndex.y < 15) ++edgeIndex.y;
+        else if (edgeIndex.y == 15 && edgeIndex.x > 0)  --edgeIndex.x;
+        else                                            --edgeIndex.y;
+        return getSolvedEdgesForBoard(currBoard, edgeIndex, solvedEdgesBoardsForBoard);
     }
-*/
+
+    //Find tiles that match with prev tile (and next corner tile if next to it)
+    for (const TileData& tileData : E2TILES.borders) {
+        TileRef tile(tileData);
+        bool match = false;
+        int prevValue = -1;
+        int nextValue = -1;
+        if (edgeIndex.y == 0 && edgeIndex.x < 15) {
+            prevValue = currBoard._tiles[edgeIndex.x - 1][edgeIndex.y].getRight();
+            if (currBoard._tiles[edgeIndex.x + 1][edgeIndex.y] != TileRef::empty)
+                nextValue = currBoard._tiles[edgeIndex.x + 1][edgeIndex.y].getLeft();
+            match = (tile.getLeft() == prevValue) && ((nextValue != -1) ? (tile.getRight() == nextValue) : 1);
+            std::cout << edgeIndex.x << " HHH " << edgeIndex.y << std::endl;
+            std::cout << prevValue << " XXX " << nextValue << std::endl;
+        } else if (edgeIndex.x == 15 && edgeIndex.y < 15) {
+            prevValue = currBoard._tiles[edgeIndex.x][edgeIndex.y - 1].getDown();
+            if (currBoard._tiles[edgeIndex.x][edgeIndex.y + 1] != TileRef::empty)
+                nextValue = currBoard._tiles[edgeIndex.x][edgeIndex.y + 1].getTop();
+            match = (tile.getTop() == prevValue) && ((nextValue != -1) ? (tile.getDown() == nextValue) : 1);
+        } else if (edgeIndex.y == 15 && edgeIndex.x > 0) {
+            prevValue = currBoard._tiles[edgeIndex.x + 1][edgeIndex.y].getLeft();
+            if (currBoard._tiles[edgeIndex.x - 1][edgeIndex.y] != TileRef::empty)
+                nextValue = currBoard._tiles[edgeIndex.x - 1][edgeIndex.y].getRight();
+            match = (tile.getRight() == prevValue) && ((nextValue != -1) ? (tile.getLeft() == nextValue) : 1);
+        } else {
+            prevValue = currBoard._tiles[edgeIndex.x][edgeIndex.y + 1].getTop();
+            if (currBoard._tiles[edgeIndex.x][edgeIndex.y - 1] != TileRef::empty)
+            nextValue = currBoard._tiles[edgeIndex.x][edgeIndex.y - 1].getDown();
+            match = (tile.getDown() == prevValue) && ((nextValue != -1) ? (tile.getTop() == nextValue) : 1);
+        }
+
+        if (match && !isTileInBoardEdge(currBoard, tile)) {
+            std::cout << "Matching piece found!" << std::endl;
+            //Place tile on board
+            currBoard._tiles[edgeIndex.y][edgeIndex.x] = tile;
+            //Increment index into a new variable
+            Point<int> newEdgeIndex = edgeIndex;
+            if (edgeIndex.y == 0 && edgeIndex.x < 15)       ++newEdgeIndex.x;
+            else if (edgeIndex.x == 15 && edgeIndex.y < 15) ++newEdgeIndex.y;
+            else if (edgeIndex.y == 15 && edgeIndex.x > 0)  --newEdgeIndex.x;
+            else                                            --newEdgeIndex.y;
+            //If nextEdgeIndex is back to the start: we successfuly completed a board!
+            if (newEdgeIndex.x == 0 && newEdgeIndex.y == 0) {
+                std::cout << "Board done!" << std::endl;
+                solvedEdgesBoardsForBoard.push_back(new Board(currBoard));
+            }
+            //Else we continue completing the board
+            else {
+                getSolvedEdgesForBoard(currBoard, newEdgeIndex, solvedEdgesBoardsForBoard);
+            }
+            //Remove tile for following iterations
+            currBoard._tiles[edgeIndex.y][edgeIndex.x] = TileRef::empty;
+
+        }
+    }
+    std::cout << "Deleting board." << std::endl;
+}
+
+bool Board::isTileInBoardEdge(const Board& board, const TileRef& tile) {
+    int x = 0;
+    int y = 0;
+    do {
+        if (board._tiles[y][x] == tile)
+            return true;
+        //Increment 2D Index following the edge
+        if (y == 0 && x < 15) ++x;
+        else if (x == 15 && y < 15) ++y;
+        else if (y == 15 && x > 0) --x;
+        else --y;
+    } while (x != 0 && y != 0);
+    return false;
 }

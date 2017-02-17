@@ -32,11 +32,11 @@ public:
     TileRef& operator=(const TileRef& other);
     TileRef& operator=(const TileData& tileData);
 
-    unsigned char getTop() const;
-    unsigned char getRight() const;
-    unsigned char getDown() const;
-    unsigned char getLeft() const;
-    unsigned char getRotation() const;
+    int getTop() const;
+    int getRight() const;
+    int getDown() const;
+    int getLeft() const;
+    int getRotation() const;
     void setRotation(unsigned char rotation);
 
 };

@@ -50,23 +50,33 @@ TileRef& TileRef::operator=(const TileData& tileData) {
 
 
 
-unsigned char TileRef::getTop() const {
+int TileRef::getTop() const {
+    if (_ptr == NULL)
+        return -1;
     return _ptr->s_pattern[_rotation].top;
 }
 
-unsigned char TileRef::getRight() const {
+int TileRef::getRight() const {
+    if (_ptr == NULL)
+        return -1;
     return _ptr->s_pattern[_rotation].right;
 }
 
-unsigned char TileRef::getDown() const {
+int TileRef::getDown() const {
+    if (_ptr == NULL)
+        return -1;
     return _ptr->s_pattern[_rotation].down;
 }
 
-unsigned char TileRef::getLeft() const {
+int TileRef::getLeft() const {
+    if (_ptr == NULL)
+        return -1;
     return _ptr->s_pattern[_rotation].left;
 }
 
-unsigned char TileRef::getRotation() const {
+int TileRef::getRotation() const {
+    if (_ptr == NULL)
+        return -1;
     return _rotation;
 }
 

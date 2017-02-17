@@ -14,6 +14,15 @@ struct Point {
     Point(NumType x, NumType y) : x(x), y(y) {}
     Point(const Point& p) : x(p.x), y(p.y) {}
     Point() {}
+    Point& operator=(const Point& other) {
+        x = other.x; y = other.y;
+    }
+    bool operator==(const Point& other) {
+        return x == other.x && y == other.y;
+    }
+    bool operator!=(const Point& other) {
+        return x != other.x || y != other.y;
+    }
 };
 
 class Board
@@ -45,7 +54,8 @@ public:
     float evaluate();
     bool isValid();
 private:
-    static void getSolvedEdgesForBoard(Board* refBoard, std::array<TileRef, 56>& borderTiles, std::list<Board*>& solvedEdgesBoardsForBoard);
+    static bool isTileInBoardEdge(const Board& board, const TileRef& tile);
+    static void getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::list<Board*>& solvedEdgesBoardsForBoard);
 
 public:
     static void unitTestSwap();
