@@ -756,7 +756,7 @@ void Board::swapAndRotateAngleMutation() {
     }
 }
 
-void Board::getSolvedEdgesBoards() {
+std::list<Board*> Board::getSolvedEdgesBoards() {
 
     //Create the 6 boards with all corner combinations
     std::vector<Board> refBoards(6, true);
@@ -796,13 +796,19 @@ void Board::getSolvedEdgesBoards() {
     //Solve refBoards into all possible edges solutions
     std::list<Board*> solvedEdgesBoards;
 //#pragma omp parallel for num_threads(6) schedule(static)
-    for (int i = 0; i < 1; ++i) {
+    for (int i = 0; i < 6; ++i) {
         std::list<Board*> solvedEdgesBoardsForBoard;
         getSolvedEdgesForBoard(refBoards[i], Point<int>(0, 0), solvedEdgesBoardsForBoard);
 //#pragma omp critical
         solvedEdgesBoards.splice(solvedEdgesBoards.end(), solvedEdgesBoardsForBoard);
     }
-    std::cout << "Done" << std::endl;
+
+    std::cout << "Done: " << solvedEdgesBoards.size() << " solutions" << std::endl;
+    //Free Data
+    for (Board* board: solvedEdgesBoards)
+        delete board;
+
+    return solvedEdgesBoards;
 }
 
 
@@ -860,6 +866,7 @@ void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::
             if (newEdgeIndex.x == 0 && newEdgeIndex.y == 0) {
                 solvedEdgesBoardsForBoard.push_back(new Board(currBoard));
                 std::cout << solvedEdgesBoardsForBoard.size() << std::endl;
+                std::cout << currBoard << std::endl;
             }
             //Else we continue completing the board
             else {

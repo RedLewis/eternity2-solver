@@ -60,7 +60,7 @@ private:
 
 public:
     static void unitTestSwap();
-    static void getSolvedEdgesBoards();
+    static std::list<Board*> getSolvedEdgesBoards();
 };
 
 std::ostream& operator<<(std::ostream& os, const Board& other);
