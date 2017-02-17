@@ -742,7 +742,6 @@ void Board::swapAndRotateAngleMutation() {
     default: assert(false);
     }
     swapRectangle(xa, ya, xb, yb, size, size);
-
     for (int i = ca; (i % 4) != cb; ++i) {
         rotateSquare(xa, ya, size);
     }

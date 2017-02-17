@@ -62,17 +62,28 @@ void Population::mutate()
 {
     //Skip best (which is number 0)
     for (unsigned int i = 1; i < _boards.size(); ++i) {
+        Board* b = _boards[i];
+        ///*
+        switch(std::rand() % 5){
+        case 0:b->rotateInnerRegionMutation();break;
+        case 1:b->swapInnerRegionMutation();break;
+        case 2:b->swapAndRotateInnerRegionMutation();break;
+        case 3:b->mutateOuter();break;
+        case 4:b->swapAndRotateAngleMutation();break;
+        }
+//*/
+/*
         if (std::rand() % 2)
-        _boards[i]->rotateInnerRegionMutation();
+            b->rotateInnerRegionMutation();
         if (std::rand() % 2)
-        _boards[i]->swapInnerRegionMutation();
+            b->swapInnerRegionMutation();
         if (std::rand() % 2)
-        _boards[i]->swapAndRotateInnerRegionMutation();
+            b->swapAndRotateInnerRegionMutation();
         if (std::rand() % 2)
-        _boards[i]->mutateOuter();
+            b->mutateOuter();
         if (std::rand() % 2)
-        _boards[i]->swapAndRotateAngleMutation();
-
+            b->swapAndRotateAngleMutation();
+//*/
     }
 }
 

@@ -9,9 +9,6 @@ class Population
 {
     std::vector<Board*> _boards;
     unsigned int _generation = 1;
-    float _mutationRate;
-    float _mutationPotency;
-
     Board* _best = NULL;
     Board* _worst = NULL;
     float _averageFitness;
