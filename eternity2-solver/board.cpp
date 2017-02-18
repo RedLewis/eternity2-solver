@@ -99,6 +99,11 @@ Board::~Board()
 {
 }
 
+int Board::getEdgeMatch() const
+{
+    return _edgeMatch;
+}
+
 float Board::getFitness() const
 {
     return _fitness;
@@ -108,8 +113,15 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
 {
     // Select a random region (two points and a random width and height)
     // Exculde edges
-    const unsigned char width = 1 + rand() % 14;
-    const unsigned char height = 1 + rand() % 14;
+
+    //More agressive crossover
+    //const unsigned char width = 1 + rand() % 14;
+    //const unsigned char height = 1 + rand() % 14;
+    //Less agressive crossover
+    const unsigned char width = 1 + std::roundf((float)(rand() % 14) * ((float)rand() / (float)RAND_MAX));
+    const unsigned char height = 1 + std::roundf((float)(rand() % 14) * ((float)rand() / (float)RAND_MAX));
+    //std::cout << "W:" << (int)width << " H:" << (int)height << std::endl;
+
     const Point<unsigned char> pointA(1 + rand() % (14 - (width - 1)),
                                       1 + rand() % (14 - (height - 1)));
     const Point<unsigned char> pointB(1 + rand() % (14 - (width - 1)),
@@ -461,7 +473,7 @@ void Board::inversionInnerRegionMutation()
     *td = tmpa;
  }
 
-float Board::evaluate()
+void Board::evaluate()
 {
     TileRef topCell;
     TileRef rightCell;
@@ -470,6 +482,7 @@ float Board::evaluate()
     TileRef currentCell;
 
     _fitness = 0;
+    _edgeMatch = 0;
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             //Get neighbor cells
@@ -490,25 +503,42 @@ float Board::evaluate()
             // evaluation more aggressive
             //float factor = xFactor + yFactor;
 
-            if (currentCell.getTop() == TileRef::EDGE_VALUE && topCell == TileRef::empty)
+            if (currentCell.getTop() == TileRef::EDGE_VALUE && topCell == TileRef::empty) {
+                _edgeMatch += 2;
                 _fitness += factor * 2;
-            else if (currentCell.getTop() != TileRef::EDGE_VALUE && topCell != TileRef::empty && currentCell.getTop() == topCell.getDown())
+            } else if (currentCell.getTop() != TileRef::EDGE_VALUE && topCell != TileRef::empty && currentCell.getTop() == topCell.getDown()) {
+                _edgeMatch += 1;
                 _fitness += factor;
-            if (currentCell.getRight() == TileRef::EDGE_VALUE && rightCell == TileRef::empty)
+            }
+
+            if (currentCell.getRight() == TileRef::EDGE_VALUE && rightCell == TileRef::empty) {
+                _edgeMatch += 2;
                 _fitness += factor * 2;
-            else if (currentCell.getRight() != TileRef::EDGE_VALUE && rightCell != TileRef::empty && currentCell.getRight() == rightCell.getLeft())
+            } else if (currentCell.getRight() != TileRef::EDGE_VALUE && rightCell != TileRef::empty && currentCell.getRight() == rightCell.getLeft()) {
+                _edgeMatch += 1;
                 _fitness += factor;
-            if (currentCell.getDown() == TileRef::EDGE_VALUE && downCell == TileRef::empty)
+            }
+
+            if (currentCell.getDown() == TileRef::EDGE_VALUE && downCell == TileRef::empty) {
+                _edgeMatch += 2;
                 _fitness += factor * 2;
-            else if (currentCell.getDown() != TileRef::EDGE_VALUE && downCell != TileRef::empty && currentCell.getDown() == downCell.getTop())
+            } else if (currentCell.getDown() != TileRef::EDGE_VALUE && downCell != TileRef::empty && currentCell.getDown() == downCell.getTop()) {
+                _edgeMatch += 1;
                 _fitness += factor;
-            if (currentCell.getLeft() == TileRef::EDGE_VALUE && leftCell == TileRef::empty)
+            }
+
+            if (currentCell.getLeft() == TileRef::EDGE_VALUE && leftCell == TileRef::empty) {
+                _edgeMatch += 2;
                 _fitness += factor * 2;
-            else if (currentCell.getLeft() != TileRef::EDGE_VALUE && leftCell != TileRef::empty && currentCell.getLeft() == leftCell.getRight())
+            } else if (currentCell.getLeft() != TileRef::EDGE_VALUE && leftCell != TileRef::empty && currentCell.getLeft() == leftCell.getRight()) {
+                _edgeMatch += 1;
                 _fitness += factor;
+            }
+
         }
     }
-    return _fitness;
+
+    _edgeMatch /= 2;
 }
 
 
@@ -557,7 +587,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
 
     std::string rst("\e[0m");
 
-    os << "fitness: " << _fitness << "/" << MAX_FITNESS << std::endl;
+    os << "fitness: " << _edgeMatch << "/" << EDGE_NUMBER << std::endl;
 
     while (boardLine < 16){
         cellLine = 0;

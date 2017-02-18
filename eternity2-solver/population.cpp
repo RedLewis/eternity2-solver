@@ -104,7 +104,7 @@ unsigned int Population::getGeneration()const
     return _generation;
 }
 
-unsigned int Population::getAverageFitness()const
+float Population::getAverageFitness()const
 {
     return _averageFitness;
 }
@@ -122,7 +122,7 @@ const Board& Population::getWorstBoard()const
 void Population::stepGeneration()
 {
     selection();
-    mutate();
+    //mutate();
     evaluate();
     _generation += 1;
 }

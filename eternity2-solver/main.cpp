@@ -13,25 +13,35 @@
 
 void showStat(Population* pop, float t, int since, bool found){
     std::cout << std::setw(5) << std::left << "Gen:"
-              << std::setw(12) << std::left << pop->getGeneration()
+              << std::setw(13) << std::left << pop->getGeneration()
+
+              << std::setw(7) << std::left << "Edges:"
+              << std::setw(11) << std::left << std::to_string(pop->getBestBoard().getEdgeMatch()) + std::string("/") + std::to_string(Board::EDGE_NUMBER)
+
               << std::setw(6) << std::left << "Best:"
-              << std::setw(10) << std::left << pop->getBestBoard().getFitness()
+              << std::setw(12) << std::left << pop->getBestBoard().getFitness()
+
               << std::setw(7) << std::left << "Since:"
-              << std::setw(8) << std::left << since
+              << std::setw(11) << std::left << since
+
               << std::setw(5) << std::left << "Avg:"
-              << std::setw(8) << std::left << pop->getAverageFitness()
+              << std::setw(13) << std::left << pop->getAverageFitness()
+
               << std::setw(7) << std::left << "Worst:"
-              << std::setw(8) << std::left << pop->getWorstBoard().getFitness()
-              << "DeltaT: " << t;
-    if (found){std::cout << std::setw(10) << std::left << "/!\\";}
+              << std::setw(11) << std::left << pop->getWorstBoard().getFitness()
+
+              << std::setw(8) << std::left << "DeltaT:"
+              << std::setw(10) << std::left << t;
+
+    if (found){ std::cout << "/!\\";}
 
     std::cout << std::endl;
 }
 
 int main()
 {
-    Board::getSolvedEdgesBoards();
-    exit(0);
+    //Board::getSolvedEdgesBoards();
+    //exit(0);
     std::cout << std::endl << std::endl
     << "###############################" << std::endl
     << "            restart            " << std::endl
@@ -42,8 +52,8 @@ int main()
     float oldBest = 0;
     int since = 0;
     srand(time(NULL));
-    Population population(100);
-    while (population.getBestBoard().getFitness() < Board::MAX_FITNESS)
+    Population population(3);
+    while (population.getBestBoard().getEdgeMatch() < Board::EDGE_NUMBER)
     {
         population.stepGeneration();
         float t = timer.update();
