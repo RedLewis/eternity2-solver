@@ -122,7 +122,7 @@ const Board& Population::getWorstBoard()const
 void Population::stepGeneration()
 {
     selection();
-    //mutate();
+    mutate();
     evaluate();
     _generation += 1;
 }
