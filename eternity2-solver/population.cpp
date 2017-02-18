@@ -104,7 +104,7 @@ unsigned int Population::getGeneration()const
     return _generation;
 }
 
-unsigned int Population::getAverageFitness()const
+float Population::getAverageFitness()const
 {
     return _averageFitness;
 }

@@ -22,7 +22,6 @@ struct TileData: public Aligned<Alignment::SSE> {
 
 
 struct TileDataArrays {
-    std::array<TileData, 256> all;
     std::array<TileData, 4> corners;
     std::array<TileData, 56> borders;
     std::array<TileData, 196> inners;

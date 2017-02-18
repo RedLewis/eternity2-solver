@@ -99,6 +99,11 @@ Board::~Board()
 {
 }
 
+int Board::getEdgeMatch() const
+{
+    return _edgeMatch;
+}
+
 float Board::getFitness() const
 {
     return _fitness;
@@ -108,8 +113,15 @@ std::pair<Board*, Board*> Board::regionExchangeCrossover(const Board& parentA, c
 {
     // Select a random region (two points and a random width and height)
     // Exculde edges
-    const unsigned char width = 1 + rand() % 14;
-    const unsigned char height = 1 + rand() % 14;
+
+    //More agressive crossover
+    //const unsigned char width = 1 + rand() % 14;
+    //const unsigned char height = 1 + rand() % 14;
+    //Less agressive crossover
+    const unsigned char width = 1 + std::roundf((float)(rand() % 14) * ((float)rand() / (float)RAND_MAX));
+    const unsigned char height = 1 + std::roundf((float)(rand() % 14) * ((float)rand() / (float)RAND_MAX));
+    //std::cout << "W:" << (int)width << " H:" << (int)height << std::endl;
+
     const Point<unsigned char> pointA(1 + rand() % (14 - (width - 1)),
                                       1 + rand() % (14 - (height - 1)));
     const Point<unsigned char> pointB(1 + rand() % (14 - (width - 1)),
@@ -461,7 +473,7 @@ void Board::inversionInnerRegionMutation()
     *td = tmpa;
  }
 
-float Board::evaluate()
+void Board::evaluate()
 {
     TileRef topCell;
     TileRef rightCell;
@@ -470,6 +482,7 @@ float Board::evaluate()
     TileRef currentCell;
 
     _fitness = 0;
+    _edgeMatch = 0;
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             //Get neighbor cells
@@ -490,25 +503,42 @@ float Board::evaluate()
             // evaluation more aggressive
             //float factor = xFactor + yFactor;
 
-            if (currentCell.getTop() == TileRef::EDGE_VALUE && topCell == TileRef::empty)
+            if (currentCell.getTop() == TileRef::EDGE_VALUE && topCell == TileRef::empty) {
+                _edgeMatch += 2;
                 _fitness += factor * 2;
-            else if (currentCell.getTop() != TileRef::EDGE_VALUE && topCell != TileRef::empty && currentCell.getTop() == topCell.getDown())
+            } else if (currentCell.getTop() != TileRef::EDGE_VALUE && topCell != TileRef::empty && currentCell.getTop() == topCell.getDown()) {
+                _edgeMatch += 1;
                 _fitness += factor;
-            if (currentCell.getRight() == TileRef::EDGE_VALUE && rightCell == TileRef::empty)
+            }
+
+            if (currentCell.getRight() == TileRef::EDGE_VALUE && rightCell == TileRef::empty) {
+                _edgeMatch += 2;
                 _fitness += factor * 2;
-            else if (currentCell.getRight() != TileRef::EDGE_VALUE && rightCell != TileRef::empty && currentCell.getRight() == rightCell.getLeft())
+            } else if (currentCell.getRight() != TileRef::EDGE_VALUE && rightCell != TileRef::empty && currentCell.getRight() == rightCell.getLeft()) {
+                _edgeMatch += 1;
                 _fitness += factor;
-            if (currentCell.getDown() == TileRef::EDGE_VALUE && downCell == TileRef::empty)
+            }
+
+            if (currentCell.getDown() == TileRef::EDGE_VALUE && downCell == TileRef::empty) {
+                _edgeMatch += 2;
                 _fitness += factor * 2;
-            else if (currentCell.getDown() != TileRef::EDGE_VALUE && downCell != TileRef::empty && currentCell.getDown() == downCell.getTop())
+            } else if (currentCell.getDown() != TileRef::EDGE_VALUE && downCell != TileRef::empty && currentCell.getDown() == downCell.getTop()) {
+                _edgeMatch += 1;
                 _fitness += factor;
-            if (currentCell.getLeft() == TileRef::EDGE_VALUE && leftCell == TileRef::empty)
+            }
+
+            if (currentCell.getLeft() == TileRef::EDGE_VALUE && leftCell == TileRef::empty) {
+                _edgeMatch += 2;
                 _fitness += factor * 2;
-            else if (currentCell.getLeft() != TileRef::EDGE_VALUE && leftCell != TileRef::empty && currentCell.getLeft() == leftCell.getRight())
+            } else if (currentCell.getLeft() != TileRef::EDGE_VALUE && leftCell != TileRef::empty && currentCell.getLeft() == leftCell.getRight()) {
+                _edgeMatch += 1;
                 _fitness += factor;
+            }
+
         }
     }
-    return _fitness;
+
+    _edgeMatch /= 2;
 }
 
 
@@ -557,7 +587,7 @@ std::ostream& Board::_stringify(std::ostream& os)const
 
     std::string rst("\e[0m");
 
-    os << "fitness: " << _fitness << "/" << MAX_FITNESS << std::endl;
+    os << "fitness: " << _edgeMatch << "/" << EDGE_NUMBER << std::endl;
 
     while (boardLine < 16){
         cellLine = 0;
@@ -755,8 +785,9 @@ void Board::swapAndRotateAngleMutation() {
         rotateSquare(xb, yb, size);
     }
 }
-
-void Board::getSolvedEdgesBoards() {
+#include <atomic>
+static std::atomic_uint nbr_sol;
+std::list<Board*> Board::getSolvedEdgesBoards() {
 
     //Create the 6 boards with all corner combinations
     std::vector<Board> refBoards(6, true);
@@ -795,21 +826,26 @@ void Board::getSolvedEdgesBoards() {
 
     //Solve refBoards into all possible edges solutions
     std::list<Board*> solvedEdgesBoards;
-//#pragma omp parallel for num_threads(6) schedule(static)
-    for (int i = 0; i < 1; ++i) {
+    nbr_sol = 0;
+#pragma omp parallel for num_threads(6) schedule(static)
+    for (int i = 0; i < 6; ++i) {
         std::list<Board*> solvedEdgesBoardsForBoard;
         getSolvedEdgesForBoard(refBoards[i], Point<int>(0, 0), solvedEdgesBoardsForBoard);
-//#pragma omp critical
+#pragma omp critical
         solvedEdgesBoards.splice(solvedEdgesBoards.end(), solvedEdgesBoardsForBoard);
     }
-    std::cout << "Done" << std::endl;
+    std::cerr << "FINAL nbr sol: " << nbr_sol << std::endl;
+
+    std::cout << "Done: " << solvedEdgesBoards.size() << " solutions" << std::endl;
+    //Free Data
+    for (Board* board: solvedEdgesBoards)
+        delete board;
+
+    return solvedEdgesBoards;
 }
 
 
 void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::list<Board*>& solvedEdgesBoardsForBoard) {
-
-    std::cout << "STEP IN edgeIndex = " << edgeIndex.x << " " << edgeIndex.y << std::endl;
-    std::cout << currBoard << std::endl;
 
     //Skip corner
     if ((edgeIndex.x == 0 && edgeIndex.y == 0) ||
@@ -824,37 +860,33 @@ void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::
     }
 
     //Find tiles that match with prev tile (and next corner tile if next to it)
-    for (const TileData& tileData : E2TILES.borders) {
-        TileRef tile(tileData);
+    for (TileRef tile : E2TILES.borders) {
         bool match = false;
         int prevValue = -1;
         int nextValue = -1;
         if (edgeIndex.y == 0 && edgeIndex.x < 15) {
-            prevValue = currBoard._tiles[edgeIndex.x - 1][edgeIndex.y].getRight();
-            if (currBoard._tiles[edgeIndex.x + 1][edgeIndex.y] != TileRef::empty)
-                nextValue = currBoard._tiles[edgeIndex.x + 1][edgeIndex.y].getLeft();
-            match = (tile.getLeft() == prevValue) && ((nextValue != -1) ? (tile.getRight() == nextValue) : 1);
-            std::cout << edgeIndex.x << " HHH " << edgeIndex.y << std::endl;
-            std::cout << prevValue << " XXX " << nextValue << std::endl;
+            tile.setRotation(0);
+            prevValue = currBoard._tiles[edgeIndex.y][edgeIndex.x - 1].getRight();
+            nextValue = currBoard._tiles[edgeIndex.y][edgeIndex.x + 1].getLeft();
+            match = (tile.getLeft() == prevValue) && ((nextValue != -1) ? (tile.getRight() == nextValue) : true);
         } else if (edgeIndex.x == 15 && edgeIndex.y < 15) {
-            prevValue = currBoard._tiles[edgeIndex.x][edgeIndex.y - 1].getDown();
-            if (currBoard._tiles[edgeIndex.x][edgeIndex.y + 1] != TileRef::empty)
-                nextValue = currBoard._tiles[edgeIndex.x][edgeIndex.y + 1].getTop();
-            match = (tile.getTop() == prevValue) && ((nextValue != -1) ? (tile.getDown() == nextValue) : 1);
+            tile.setRotation(1);
+            prevValue = currBoard._tiles[edgeIndex.y - 1][edgeIndex.x].getDown();
+            nextValue = currBoard._tiles[edgeIndex.y + 1][edgeIndex.x].getTop();
+            match = (tile.getTop() == prevValue) && ((nextValue != -1) ? (tile.getDown() == nextValue) : true);
         } else if (edgeIndex.y == 15 && edgeIndex.x > 0) {
-            prevValue = currBoard._tiles[edgeIndex.x + 1][edgeIndex.y].getLeft();
-            if (currBoard._tiles[edgeIndex.x - 1][edgeIndex.y] != TileRef::empty)
-                nextValue = currBoard._tiles[edgeIndex.x - 1][edgeIndex.y].getRight();
-            match = (tile.getRight() == prevValue) && ((nextValue != -1) ? (tile.getLeft() == nextValue) : 1);
+            tile.setRotation(2);
+            prevValue = currBoard._tiles[edgeIndex.y][edgeIndex.x + 1].getLeft();
+            nextValue = currBoard._tiles[edgeIndex.y][edgeIndex.x - 1].getRight();
+            match = (tile.getRight() == prevValue) && ((nextValue != -1) ? (tile.getLeft() == nextValue) : true);
         } else {
-            prevValue = currBoard._tiles[edgeIndex.x][edgeIndex.y + 1].getTop();
-            if (currBoard._tiles[edgeIndex.x][edgeIndex.y - 1] != TileRef::empty)
-            nextValue = currBoard._tiles[edgeIndex.x][edgeIndex.y - 1].getDown();
-            match = (tile.getDown() == prevValue) && ((nextValue != -1) ? (tile.getTop() == nextValue) : 1);
+            tile.setRotation(3);
+            prevValue = currBoard._tiles[edgeIndex.y + 1][edgeIndex.x].getTop();
+            nextValue = currBoard._tiles[edgeIndex.y - 1][edgeIndex.x].getDown();
+            match = (tile.getDown() == prevValue) && ((nextValue != -1) ? (tile.getTop() == nextValue) : true);
         }
 
         if (match && !isTileInBoardEdge(currBoard, tile)) {
-            std::cout << "Matching piece found!" << std::endl;
             //Place tile on board
             currBoard._tiles[edgeIndex.y][edgeIndex.x] = tile;
             //Increment index into a new variable
@@ -865,8 +897,22 @@ void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::
             else                                            --newEdgeIndex.y;
             //If nextEdgeIndex is back to the start: we successfuly completed a board!
             if (newEdgeIndex.x == 0 && newEdgeIndex.y == 0) {
-                std::cout << "Board done!" << std::endl;
-                solvedEdgesBoardsForBoard.push_back(new Board(currBoard));
+                //solvedEdgesBoardsForBoard.push_back(new Board(currBoard));
+                nbr_sol += 1;
+                #pragma omp critical
+                if((nbr_sol%2000) == 0) {
+                    {
+                        TileRef tmpTile = currBoard._tiles[0][1];
+                        tmpTile.setRotation(0);
+                        std::cerr << "current nbr sol: " << nbr_sol << std::endl;
+                        std::cerr << "top:   " << tmpTile.getTop() << std::endl;
+                        std::cerr << "down:  " << tmpTile.getDown() << std::endl;
+                        std::cerr << "left:  " << tmpTile.getLeft() << std::endl;
+                        std::cerr << "right: " << tmpTile.getRight() << std::endl;
+                        std::cerr << std::endl;
+                    }
+                }
+
             }
             //Else we continue completing the board
             else {
@@ -877,21 +923,22 @@ void Board::getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::
 
         }
     }
-    std::cout << "Deleting board." << std::endl;
 }
 
 bool Board::isTileInBoardEdge(const Board& board, const TileRef& tile) {
     int x = 0;
     int y = 0;
+
     do {
         if (board._tiles[y][x] == tile)
             return true;
         //Increment 2D Index following the edge
+
         if (y == 0 && x < 15) ++x;
         else if (x == 15 && y < 15) ++y;
         else if (y == 15 && x > 0) --x;
         else --y;
-    } while (x != 0 && y != 0);
+    } while (!(x == 0 && y == 0));
     return false;
 }
 

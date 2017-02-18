@@ -29,18 +29,21 @@ class Board
 {
     TileRef _tiles[16][16] = {};
     float _fitness = -1;
+    int _edgeMatch = -1;
 
 public:
 
-    static constexpr float MAX_FITNESS = 2530.22f;
+    static constexpr unsigned int EDGE_NUMBER = 544;
 
     Board(bool empty = false);
     Board(const Board& other);
     ~Board();
-    float getFitness() const;
-    std::ostream& _stringify(std::ostream& os) const;
-    static std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
 
+    float getFitness() const;
+    int getEdgeMatch() const;
+    std::ostream& _stringify(std::ostream& os) const;
+
+    static std::pair<Board*, Board*> regionExchangeCrossover(const Board& board1, const Board& board2);
     void simpleOuterMutation();
     void swapAndRotateAngleMutation();
     void inversionInnerRegionMutation();
@@ -51,16 +54,18 @@ public:
     bool swapRectangle(int posXa, int posYa, int posXb, int posYb, int sizeX, int sizeY);
     bool rotateSquare(int posX, int posY, int size);  
     void swapChunkOuterMutation();
-    float evaluate();
+    void evaluate();
+
     bool isValid();
+
     float cmp(const Board& other) const;
+
+    static void unitTestSwap();
+
+    static std::list<Board*> getSolvedEdgesBoards();
 private:
     static bool isTileInBoardEdge(const Board& board, const TileRef& tile);
     static void getSolvedEdgesForBoard(Board& currBoard, Point<int> edgeIndex, std::list<Board*>& solvedEdgesBoardsForBoard);
-
-public:
-    static void unitTestSwap();
-    static void getSolvedEdgesBoards();
 };
 
 std::ostream& operator<<(std::ostream& os, const Board& other);

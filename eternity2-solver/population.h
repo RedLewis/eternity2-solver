@@ -16,7 +16,7 @@ public:
     Population(int size = 100);
     ~Population();
     unsigned int getGeneration()const;
-    unsigned int getAverageFitness()const;
+    float getAverageFitness()const;
     const Board& getBestBoard()const;
     const Board& getWorstBoard()const;
 
