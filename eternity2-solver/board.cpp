@@ -910,21 +910,60 @@ float Board::cmp(const Board& other) const
 }
 
 void Board::swapChunkOuterMutation() {
-    return;
-    int size = 1 + (std::rand() % 14);
+    int size = 1 + (std::rand() % 12);
     int ca = std::rand() % 4;
-    int pa = std::rand() % (16 - size);
+    int pa = 1 + std::rand() % (14 - size);
     int cb = std::rand() % 4;
-    int pb = std::rand() % (16 - size);
+    int pb = 1 + std::rand() % (14 - size);
 
     while (ca == cb) {
-        cb == std::rand() % 4;
+        cb = std::rand() % 4;
     }
-    for (int i = ca; (i % 4) != cb; ++i) {
+
+    int xa = 0;
+    int ya = 0;
+    int xb = 0;
+    int yb = 0;
+
+    switch (ca) {
+        case 0:ya = 00; xa = pa + 1;break;
+        case 1:ya = pa + 1; xa = 15;break;
+        case 2:ya = 15; xa = 15 - (pa + size);break;
+        case 3:ya = 15 - (pa + size); xa = 0;break;
+        default:break;
+    }
+
+    switch (cb) {
+        case 0:yb = 00; xb = pb + 1;break;
+        case 1:yb = pb + 1; xb = 15;break;
+        case 2:yb = 15; xb = 15 - (pb + size);break;
+        case 3:yb = 15 - (pb + size); xb = 0;break;
+        default:break;
+    }
+
+    int ora = _tiles[ya][xa].getRotation();
+    int orb = _tiles[yb][xb].getRotation();
+    for (int i = 0; i < size; ++i){
+        TileRef* tmpa = NULL;
+        TileRef* tmpb = NULL;
+        if (ca == 0 || ca == 2)
+            tmpa = &_tiles[ya][xa + i];
+        else
+            tmpa = &_tiles[ya + i][xa];
+        if (cb == 0 || cb == 2)
+            tmpb = &_tiles[yb][xb + i];
+        else
+            tmpb = &_tiles[yb + i][xb];
+        tmpa->setRotation(orb);
+
+        tmpb->setRotation(ora);
+
+        TileRef tmp = *tmpa;
+        *tmpa = *tmpb;
+        *tmpb = tmp;
 
     }
-    for (int i = cb; (i % 4) != ca; ++i) {
 
-    }
+
 
 }
