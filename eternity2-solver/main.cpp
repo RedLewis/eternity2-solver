@@ -10,6 +10,14 @@
 #include <iomanip>
 #include "fpstimer.h"
 #include "board.h"
+#include <csignal>
+
+static volatile bool keepRunning = true;
+void sigintHandler(int i) {
+    (void)i;
+    keepRunning = false;
+}
+
 
 #define _GRAPH_
 
@@ -56,8 +64,11 @@ void showStat(Population* pop, float t, int since, bool found){
 
 int main()
 {
+    signal(SIGINT, sigintHandler);
+  
     //Board::getSolvedEdgesBoards();
     //exit(0);
+
     std::cout << std::endl << std::endl
     << "###############################" << std::endl
     << "            restart            " << std::endl
@@ -67,14 +78,13 @@ int main()
     //Board::unitTestSwap();;
     float oldBest = 0;
     int since = 0;
-    bool run = true;
     srand(time(NULL));
     Population population(3);
 #ifdef _GRAPH_
     matplotlibcpp::ion();
     matplotlibcpp::show();
 #endif
-    while (run && population.getBestBoard().getEdgeMatch() < Board::EDGE_NUMBER)
+    while (keepRunning && population.getBestBoard().getEdgeMatch() < Board::EDGE_NUMBER)
     {
         population.stepGeneration();
         float t = timer.update();
@@ -93,4 +103,6 @@ int main()
         }
         ++since;
     }
+
+    std::cout << "Program finished successfully." << std::endl;
 }

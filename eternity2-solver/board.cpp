@@ -836,7 +836,7 @@ std::list<Board*> Board::getSolvedEdgesBoards() {
     }
     std::cerr << "FINAL nbr sol: " << nbr_sol << std::endl;
 
-    std::cout << "Done: " << solvedEdgesBoards.size() << " solutions" << std::endl;
+    std::cout << "Solving board edges done: " << solvedEdgesBoards.size() << " solutions" << std::endl;
     //Free Data
     for (Board* board: solvedEdgesBoards)
         delete board;
