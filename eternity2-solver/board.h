@@ -33,7 +33,7 @@ class Board
 
 public:
 
-    static constexpr unsigned int EDGE_NUMBER = 544;
+    static constexpr int EDGE_NUMBER = 544;
 
     Board(bool empty = false);
     Board(const Board& other);

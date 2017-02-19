@@ -13,7 +13,7 @@ QMAKE_LFLAGS +=  -fopenmp
     # QMAKE_CXXFLAGS += -march=native
     QMAKE_CXXFLAGS += -msse4
 }
-
+QMAKE_LIBS += -lpython2.7
 SOURCES += main.cpp \
     board.cpp \
     population.cpp \
@@ -27,5 +27,6 @@ HEADERS += \
     population.h \
     e2tiles.h \
     tile.h \
-    fpstimer.h
+    fpstimer.h \
+    matplotlibcpp.h
     tile.h
