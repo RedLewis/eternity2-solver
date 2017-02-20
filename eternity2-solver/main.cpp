@@ -19,7 +19,7 @@ void sigintHandler(int i) {
 }
 
 
-#define _GRAPH_
+#define NO_GRAPH_
 
 #ifdef _GRAPH_
 
@@ -45,8 +45,8 @@ void showStat(Population* pop, float t, int since, bool found){
               << std::setw(5) << std::left << "Avg:"
               << std::setw(13) << std::left << pop->getAverageFitness()
 
-              << std::setw(7) << std::left << "Worst:"
-              << std::setw(11) << std::left << pop->getWorstBoard().getFitness()
+              << std::setw(7) << std::left << "Preserved:"
+              << std::setw(11) << std::left << pop->getPreserved()
 
               << std::setw(8) << std::left << "DeltaT:"
               << std::setw(10) << std::left << t;
@@ -79,7 +79,7 @@ int main()
     float oldBest = 0;
     int since = 0;
     srand(time(NULL));
-    Population population(3);
+    Population population(50);
 #ifdef _GRAPH_
     matplotlibcpp::ion();
     matplotlibcpp::show();

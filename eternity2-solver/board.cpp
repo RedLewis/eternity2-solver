@@ -942,17 +942,22 @@ bool Board::isTileInBoardEdge(const Board& board, const TileRef& tile) {
     return false;
 }
 
+
+// 0 for different
+// 1 for identical
+
 float Board::cmp(const Board& other) const
 {
     float res = 0;
     for (int j = 0; j < 16; ++j) {
         for (int i = 0; i < 16; ++i) {
-            if (_tiles[j][i] != other._tiles[j][i]){
-                ++res;
+
+            if (_tiles[j][i] == other._tiles[j][i] && _tiles[j][i].getRotation() == other._tiles[j][i].getRotation()){
+                res += 1.f;
             }
         }
     }
-    res /= 256;
+    res /= 256.f;
     return res;
 }
 

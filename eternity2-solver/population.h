@@ -8,6 +8,7 @@
 class Population
 {
     std::vector<Board*> _boards;
+    std::vector<Board*> _preserveds;
     unsigned int _generation = 1;
     Board* _best = NULL;
     Board* _worst = NULL;
@@ -19,6 +20,7 @@ public:
     float getAverageFitness()const;
     const Board& getBestBoard()const;
     const Board& getWorstBoard()const;
+    int getPreserved()const;
 
     void stepGeneration();
     Board* tournamentSelection(int tournamentSize)const;

@@ -1,6 +1,7 @@
 #include "population.h"
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 Population::Population(int size): _boards(size)
 {
@@ -32,32 +33,48 @@ Board* Population::tournamentSelection(int tournamentSize)const
 
 void Population::selection()
 {
+    _preserveds.clear();
     std::vector<Board*> newBoards(0);
     newBoards.reserve(_boards.size());
+
+
+    //Preserve the best
+    _preserveds.push_back(_best);
     newBoards.push_back(_best);
+    //Preserve individuals different from other bests
+    for (Board *board : _boards) {
+        if (!(_preserveds.size() < std::roundf(_boards.size() / 10.f)))
+            break;
+        bool toPreserve = true;
+        for (Board* preserved : _preserveds) {
+            if (board == preserved ||
+                ((float)board->getFitness()/(float)preserved->getFitness()) < 0.90f ||
+                preserved->cmp(*board) > 0.10f) {
+                toPreserve = false;
+                break;
+            }
+        }
+        if (toPreserve) {
+            _preserveds.push_back(board);
+            newBoards.push_back(board);
+        }
+    }
+    //std::cout << "best saved: " << _preserveds.size() << std::endl;
 
     std::pair<Board*, Board*> children;
-    //Skip best (which is number 0)
-    do {
-        ///*
+    while(newBoards.size() < _boards.size()){
         Board* parentA = tournamentSelection(2);
         Board* parentB = tournamentSelection(2);
         children = Board::regionExchangeCrossover(*parentA, *parentB);
-        //*/
-        /*
-        children.first = new Board(*_best);
-        children.second = new Board(*_best);
-        //*/
         newBoards.push_back(children.first);
         if (newBoards.size() < _boards.size()) {
             newBoards.push_back(children.second);
         }
         else
             delete children.second;
-    }while(newBoards.size() < _boards.size());
-    //Skip best (which is number 0)
-    for (unsigned int i = 0; i < _boards.size(); ++i){
-        if (_boards[i] != _best){
+    }
+    for (unsigned int i = 0; i < _boards.size(); ++i) {
+        if (std::find(_preserveds.begin(), _preserveds.end(), _boards[i]) == _preserveds.end()){
             delete _boards[i];
         }
     }
@@ -66,10 +83,10 @@ void Population::selection()
 
 void Population::mutate()
 {
-    //Skip best (which is number 0)
     for (Board* b : _boards){
-        if (b == _best)
-            continue;
+            if (std::find(_preserveds.begin(), _preserveds.end(), b) != _preserveds.end()){
+                continue;
+            }
 
         switch(std::rand() % 6){
             case 5:b->rotateInnerRegionMutation();break;
@@ -118,6 +135,12 @@ const Board& Population::getWorstBoard()const
 {
     return *(*std::prev(_boards.end()));
 }
+
+int Population::getPreserved()const
+{
+    return _preserveds.size();
+}
+
 
 void Population::stepGeneration()
 {
