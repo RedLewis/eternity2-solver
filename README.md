@@ -28,9 +28,8 @@ and other fittest individuals with at least 90% different tile settings form all
 other kept individuals.
 
 ####CROSSOVER
-- Region Exchange Crossover.
-* The crossover is more likely to exchange small regions than big ones.
-Edge edge tiles are kept on the edges and corner tiles are kept on the corners with proper orientation.
+- Region Exchange Crossover. The crossover is more likely to exchange small regions than big ones.
+- Edge edge tiles are kept on the edges and corner tiles are kept on the corners with proper orientation.
 
 ####MUTATIONS
 - Rotate Region Mutation
@@ -39,7 +38,7 @@ Edge edge tiles are kept on the edges and corner tiles are kept on the corners w
 - Simple Outer Mutation
 - Swap Chunk Outer Mutation
 - Swap & Rotate Angle Mutation
-* Edge edge tiles are kept on the edges and corner tiles are kept on the corners with proper orientation.
+- Edge edge tiles are kept on the edges and corner tiles are kept on the corners with proper orientation.
 
 # Benchmarks
 
