@@ -107,7 +107,7 @@ int main()
 #pragma omp critical
                 {
                 //std::cerr << populations[i]->getBestBoard() << std::endl;
-                showStat(i, populations[i], t, since, true);
+                //showStat(i, populations[i], t, since, true);
 #ifdef _GRAPH_
                 matplotlibcpp::plot(gen, fitness);
                 matplotlibcpp::draw();
@@ -116,11 +116,16 @@ int main()
                 }
                 since = 0;
             } else if ((populations[i]->getGeneration() % 5000) == 0){
-                showStat(i, populations[i], t, since, false);
+                //showStat(i, populations[i], t, since, false);
             }
             ++since;
         }
 
+    }
+
+    std::cout << std::endl;
+    for (unsigned int i = 0; i < 5; ++i) {
+        showStat(i, populations[i], 0, since, false);
     }
 
     std::cout << "Program finished successfully." << std::endl;
