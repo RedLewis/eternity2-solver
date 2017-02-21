@@ -29,8 +29,10 @@ std::vector<double> gen;
 std::vector<double> fitness;
 
 #endif
-void showStat(Population* pop, float t, int since, bool found){
-    std::cout << std::setw(5) << std::left << "Gen:"
+void showStat(int nbr, Population* pop, float t, int since, bool found){
+    std::cout << std::setw(18) << std::left << std::string("Population[") + std::to_string(nbr) + std::string("]")
+
+              << std::setw(5) << std::left << "Gen:"
               << std::setw(13) << std::left << pop->getGeneration()
 
               << std::setw(7) << std::left << "Edges:"
@@ -73,9 +75,8 @@ int main()
     << "###############################" << std::endl
     << "            restart            " << std::endl
     << "###############################" << std::endl;
-    FPSTimer timer;
 
-    //Board::unitTestSwap();;
+    //Board::unitTestSwap();
     float oldBest = 0;
     int since = 0;
     srand(time(NULL));
@@ -87,6 +88,7 @@ int main()
     Population* populations[5] = {
         &population1, &population2, &population3, &population4, &population5
     };
+    FPSTimer timer;
 
 #ifdef _GRAPH_
     matplotlibcpp::ion();
@@ -98,13 +100,14 @@ int main()
 
         while(keepRunning && populations[i]->getBestBoard().getEdgeMatch() < Board::EDGE_NUMBER) {
             populations[i]->stepGeneration();
-            float t = timer.update();
+            float t = 0;
             if (oldBest < populations[i]->getBestBoard().getFitness()){
                 oldBest = populations[i]->getBestBoard().getFitness();
+
 #pragma omp critical
                 {
-                std::cerr << populations[i]->getBestBoard() << std::endl;
-                showStat(populations[i], t, since, true);
+                //std::cerr << populations[i]->getBestBoard() << std::endl;
+                showStat(i, populations[i], t, since, true);
 #ifdef _GRAPH_
                 matplotlibcpp::plot(gen, fitness);
                 matplotlibcpp::draw();
@@ -113,34 +116,12 @@ int main()
                 }
                 since = 0;
             } else if ((populations[i]->getGeneration() % 5000) == 0){
-                showStat(populations[i], t, since, false);
+                showStat(i, populations[i], t, since, false);
             }
             ++since;
         }
 
     }
-
-    /*
-    while (keepRunning && population.getBestBoard().getEdgeMatch() < Board::EDGE_NUMBER)
-    {
-        population.stepGeneration();
-        float t = timer.update();
-        if (oldBest < population.getBestBoard().getFitness()){
-            oldBest = population.getBestBoard().getFitness();
-            std::cerr << population.getBestBoard() << std::endl;
-            showStat(&population, t, since, true);
-            since = 0;
-#ifdef _GRAPH_
-                matplotlibcpp::plot(gen, fitness);
-                matplotlibcpp::draw();
-                matplotlibcpp::pause(0.001);
-#endif
-        }else if ((population.getGeneration() % 5000) == 0){
-            showStat(&population, t, since, false);
-        }
-        ++since;
-    }
-    */
 
     std::cout << "Program finished successfully." << std::endl;
 }

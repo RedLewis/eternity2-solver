@@ -11,21 +11,20 @@ class FPSTimer {
   unsigned int countIntervalMS = 1000000; //1s time interval between fps calculation
   unsigned int nbrFrames = 0;
   float FPS = 0;
-  bool printFPS;
 
-
-  std::chrono::high_resolution_clock::time_point timeStart;
+  const std::chrono::high_resolution_clock::time_point timeStart;
+  std::chrono::high_resolution_clock::time_point timeLastFPSCount;
   std::chrono::high_resolution_clock::time_point timeLastUpdate;
 
 public:
 
-  FPSTimer(bool printFPS = false) : printFPS(printFPS) {
-    timeStart = timeLastUpdate = std::chrono::high_resolution_clock::now();
+  FPSTimer() : timeStart(std::chrono::high_resolution_clock::now()) {
+    timeLastFPSCount = timeLastUpdate = timeStart;
   }
 
-  float update() {
+  float update(bool printFPS = false) {
     auto timeCurrent = std::chrono::high_resolution_clock::now();
-    auto timeElapsedMS = std::chrono::duration_cast<std::chrono::microseconds>(timeCurrent - timeStart).count();
+    auto timeElapsedMS = std::chrono::duration_cast<std::chrono::microseconds>(timeCurrent - timeLastFPSCount).count();
 
     nbrFrames += 1;
     if (countIntervalMS > 0 && timeElapsedMS >= countIntervalMS) {
@@ -35,12 +34,24 @@ public:
         std::cout << "FPS = " << roundf(FPS) << std::endl;
         }
         nbrFrames = 0;
-        timeStart = timeCurrent;
+        timeLastFPSCount = timeCurrent;
     }
 
     timeElapsedMS = std::chrono::duration_cast<std::chrono::microseconds>(timeCurrent - timeLastUpdate).count();
     timeLastUpdate = timeCurrent;
     return timeElapsedMS / 1000000.f;
+  }
+
+  float getTimeSinceLastUpdate() const {
+      auto timeCurrent = std::chrono::high_resolution_clock::now();
+      auto timeElapsedMS = std::chrono::duration_cast<std::chrono::microseconds>(timeCurrent - timeLastUpdate).count();
+      return timeElapsedMS / 1000000.f;
+  }
+
+  float getTimeSinceStart() const {
+      auto timeCurrent = std::chrono::high_resolution_clock::now();
+      auto timeElapsedMS = std::chrono::duration_cast<std::chrono::microseconds>(timeCurrent - timeStart).count();
+      return timeElapsedMS / 1000000.f;
   }
 
 };
