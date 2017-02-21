@@ -74,7 +74,7 @@ After 1000 generations:
 
 #Program Outputs
 
-The program outputs a graphical representation of the best board on the `error` output at each generation where the best board improved.
+The program outputs a graphical representation of the best board on the `error` output at each generation where the best board improved. Written in red are the tile values that are not connected and colored in green are the valid tile connections.
 
 ![best-raw](https://github.com/RedLewis/eternity2-solver/raw/master/docs/best-board.png)
 
