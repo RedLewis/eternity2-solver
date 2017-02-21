@@ -29,26 +29,24 @@ std::vector<double> gen;
 std::vector<double> fitness;
 
 #endif
-void showStat(int nbr, Population* pop, float t, int since, bool found){
-    std::cout << std::setw(18) << std::left << std::string("Population[") + std::to_string(nbr) + std::string("]")
-
-              << std::setw(5) << std::left << "Gen:"
-              << std::setw(13) << std::left << pop->getGeneration()
+void showStat(const Population& pop, float t, int since, bool found){
+    std::cout << std::setw(5) << std::left << "Gen:"
+              << std::setw(13) << std::left << pop.getGeneration()
 
               << std::setw(7) << std::left << "Edges:"
-              << std::setw(11) << std::left << std::to_string(pop->getBestBoard().getEdgeMatch()) + std::string("/") + std::to_string(Board::EDGE_NUMBER)
+              << std::setw(11) << std::left << std::to_string(pop.getBestBoard().getEdgeMatch()) + std::string("/") + std::to_string(Board::EDGE_NUMBER)
 
               << std::setw(6) << std::left << "Best:"
-              << std::setw(12) << std::left << pop->getBestBoard().getFitness()
+              << std::setw(12) << std::left << pop.getBestBoard().getFitness()
 
               << std::setw(7) << std::left << "Since:"
               << std::setw(11) << std::left << since
 
               << std::setw(5) << std::left << "Avg:"
-              << std::setw(13) << std::left << pop->getAverageFitness()
+              << std::setw(13) << std::left << pop.getAverageFitness()
 
               << std::setw(7) << std::left << "Preserved:"
-              << std::setw(11) << std::left << pop->getPreserved()
+              << std::setw(11) << std::left << pop.getPreserved()
 
               << std::setw(8) << std::left << "DeltaT:"
               << std::setw(10) << std::left << t;
@@ -80,14 +78,7 @@ int main()
     float oldBest = 0;
     int since = 0;
     srand(time(NULL));
-    Population population1(3);
-    Population population2(30);
-    Population population3(300);
-    Population population4(3000);
-    Population population5(30000);
-    Population* populations[5] = {
-        &population1, &population2, &population3, &population4, &population5
-    };
+    Population population(3);
     FPSTimer timer;
 
 #ifdef _GRAPH_
@@ -95,37 +86,23 @@ int main()
     matplotlibcpp::show();
 #endif
     
-#pragma omp parallel for num_threads(5) schedule(static) firstprivate(oldBest, since)
-    for (unsigned int i = 0; i < 5; ++i) {
-
-        while(keepRunning && populations[i]->getBestBoard().getEdgeMatch() < Board::EDGE_NUMBER) {
-            populations[i]->stepGeneration();
-            float t = 0;
-            if (oldBest < populations[i]->getBestBoard().getFitness()){
-                oldBest = populations[i]->getBestBoard().getFitness();
-
-#pragma omp critical
-                {
-                //std::cerr << populations[i]->getBestBoard() << std::endl;
-                //showStat(i, populations[i], t, since, true);
+    while(keepRunning && population.getBestBoard().getEdgeMatch() < Board::EDGE_NUMBER) {
+        population.stepGeneration();
+        float t = timer.update();
+        if (oldBest < population.getBestBoard().getFitness()){
+            oldBest = population.getBestBoard().getFitness();
+            std::cerr << population.getBestBoard() << std::endl;
+            showStat(population, t, since, true);
 #ifdef _GRAPH_
-                matplotlibcpp::plot(gen, fitness);
-                matplotlibcpp::draw();
-                matplotlibcpp::pause(0.001);
+            matplotlibcpp::plot(gen, fitness);
+            matplotlibcpp::draw();
+            matplotlibcpp::pause(0.001);
 #endif
-                }
-                since = 0;
-            } else if ((populations[i]->getGeneration() % 5000) == 0){
-                //showStat(i, populations[i], t, since, false);
-            }
-            ++since;
+            since = 0;
+        } else if ((population.getGeneration() % 5000) == 0){
+            showStat(population, t, since, false);
         }
-
-    }
-
-    std::cout << std::endl;
-    for (unsigned int i = 0; i < 5; ++i) {
-        showStat(i, populations[i], 0, since, false);
+        ++since;
     }
 
     std::cout << "Program finished successfully." << std::endl;
