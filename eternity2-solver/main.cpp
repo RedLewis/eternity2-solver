@@ -79,11 +79,48 @@ int main()
     float oldBest = 0;
     int since = 0;
     srand(time(NULL));
-    Population population(50);
+    Population population1(3);
+    Population population2(30);
+    Population population3(300);
+    Population population4(3000);
+    Population population5(30000);
+    Population* populations[5] = {
+        &population1, &population2, &population3, &population4, &population5
+    };
+
 #ifdef _GRAPH_
     matplotlibcpp::ion();
     matplotlibcpp::show();
 #endif
+    
+#pragma omp parallel for num_threads(5) schedule(static) firstprivate(oldBest, since)
+    for (unsigned int i = 0; i < 5; ++i) {
+
+        while(keepRunning && populations[i]->getBestBoard().getEdgeMatch() < Board::EDGE_NUMBER) {
+            populations[i]->stepGeneration();
+            float t = timer.update();
+            if (oldBest < populations[i]->getBestBoard().getFitness()){
+                oldBest = populations[i]->getBestBoard().getFitness();
+#pragma omp critical
+                {
+                std::cerr << populations[i]->getBestBoard() << std::endl;
+                showStat(populations[i], t, since, true);
+#ifdef _GRAPH_
+                matplotlibcpp::plot(gen, fitness);
+                matplotlibcpp::draw();
+                matplotlibcpp::pause(0.001);
+#endif
+                }
+                since = 0;
+            } else if ((populations[i]->getGeneration() % 5000) == 0){
+                showStat(populations[i], t, since, false);
+            }
+            ++since;
+        }
+
+    }
+
+    /*
     while (keepRunning && population.getBestBoard().getEdgeMatch() < Board::EDGE_NUMBER)
     {
         population.stepGeneration();
@@ -103,6 +140,7 @@ int main()
         }
         ++since;
     }
+    */
 
     std::cout << "Program finished successfully." << std::endl;
 }
