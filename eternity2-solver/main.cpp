@@ -19,7 +19,7 @@ void sigintHandler(int i) {
 }
 
 
-#define NO_GRAPH_
+#define _GRAPH_
 
 #ifdef _GRAPH_
 
@@ -54,8 +54,8 @@ void showStat(const Population& pop, float t, int since, bool found){
     if (found){
         std::cout << "/!\\";
         #ifdef _GRAPH_
-        gen.push_back(pop->getGeneration());
-        fitness.push_back(pop->getBestBoard().getFitness());
+        gen.push_back(pop.getGeneration());
+        fitness.push_back(pop.getBestBoard().getFitness());
         #endif
     }
 
@@ -94,7 +94,7 @@ int main()
             std::cerr << population.getBestBoard() << std::endl;
             showStat(population, t, since, true);
 #ifdef _GRAPH_
-            matplotlibcpp::plot(gen, fitness);
+            matplotlibcpp::plot(gen, fitness, "g");
             matplotlibcpp::draw();
             matplotlibcpp::pause(0.001);
 #endif
