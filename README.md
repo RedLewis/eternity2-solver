@@ -72,7 +72,9 @@ After 1000 generations:
 
 ![graph](https://github.com/RedLewis/eternity2-solver/raw/master/docs/figure_1-1.png)
 
-#Program Outputs
+#Program Input Output
+
+The program catches the signal SIGINT to stop. On most terminals it's CTRL+C.
 
 The program outputs a graphical representation of the best board on the `error` output at each generation where the best board improved. Written in red are the tile values that are not connected and colored in green are the valid tile connections.
 
